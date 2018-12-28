@@ -3,10 +3,15 @@ const router = express.Router()
 
 const Todo = require('../models/todo-model')
 const authenticateUser = require('../middleware/authenticate-user')
+const verifyCreator = require('../middleware/verify-creator')
 
 router.get('/todos', authenticateUser, (req, res) => {
-  Todo.find().then((todos) => {
-    res.render('todos', { todos })
+  const { token } = req.cookies
+
+  verifyCreator(token).then((creator) => {
+    Todo.find({ creator }).then((todos) => {
+      res.render('todos', { todos })
+    })
   })
 })
 
@@ -15,36 +20,56 @@ router.get('/todos/new', authenticateUser, (req, res) => {
 })
 
 router.post('/todos', authenticateUser, (req, res) => {
-  const { title, completed } = req.body
-  const todo = new Todo({ title, completed })
+  const { token } = req.cookies
 
-  todo.save().then(() => {
-    res.redirect('/todos')
+  verifyCreator(token).then((creator) => {
+    const { title, completed } = req.body
+    console.log(token)
+    console.log(creator)
+    const todo = new Todo({ title, completed, creator })
+  
+    todo.save().then(() => {
+      res.redirect('/todos')
+    })
   })
 })
 
 router.get('/todos/:id/edit', authenticateUser, (req, res) => {
-  const { id } = req.params
+  const { token } = req.cookies
+  const _id = req.params.id
 
-  Todo.findById(id).then((todo) => {
-    res.render('edit-todo', { todo })
+  verifyCreator(token).then((creator) => {
+    Todo.findOne({ _id, creator }).then((todo) => {
+      res.render('edit-todo', { todo })
+    })
   })
 })
 
 router.patch('/todos/:id', authenticateUser, (req, res) => {
-  const { id } = req.params
+  const { token } = req.cookies
+  const _id = req.params.id
   const update = { title, completed } = req.body
 
-  Todo.findByIdAndUpdate(id, update).then(() => {
-    res.redirect('/todos')
+  verifyCreator(token).then((creator) => {
+    const conditions = { _id, creator }
+
+    Todo.findOneAndUpdate(conditions, update).then(() => {
+      res.redirect('/todos')
+    })
   })
 })
 
 router.delete('/todos/:id', authenticateUser, (req, res) => {
-  const { id } = req.params
+  const { token } = req.cookies
+  const _id = req.params.id
+  
 
-  Todo.findByIdAndDelete(id).then((todo) => {
-    res.redirect('/todos')
+  verifyCreator(token).then((creator) => {
+    const conditions = { _id, creator }
+
+    Todo.findOneAndDelete(conditions).then((todo) => {
+      res.redirect('/todos')
+    })
   })
 })
 
