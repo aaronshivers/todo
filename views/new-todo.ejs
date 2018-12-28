@@ -1,0 +1,20 @@
+<% include partials/top %>
+
+<div class="container">
+
+  <h1 class="text-center">New Todo Form</h1>
+
+  <form class="form" action="/todos" method="POST">
+    
+    <div class="form-group">
+      <label for="title">Todo</label>
+      <input class="form-control" type="title" name="title" placeholder="Enter Todo..." required>
+    </div>
+
+    <button class="btn btn-outline-primary btn-block">Create Todo</button>
+
+  </form>
+
+</div>
+
+<% include partials/bottom %>

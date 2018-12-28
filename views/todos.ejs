@@ -1,0 +1,37 @@
+<% include partials/top %>
+
+<div id="homeContainer" class="container">
+
+  <h1 class="text-center">Todos List</h1>
+
+  <a class="btn btn-outline-primary btn-block mb-3" href="/todos/new">New Todo</a>
+
+  <table class="table">
+    
+    <thead class="table-dark">
+      
+      <tr>
+        
+        <th>Title</th>
+        <th>Completed</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+      <% todos.forEach((todo) => { %>
+      <tr>
+        
+        <th><a href="/todos/<%= todo._id %>/edit"><%= todo.title %></a></th>
+        <th><%= todo.completed %></th>
+
+      </tr>
+      <% }) %>
+    </tbody>
+
+  </table>
+
+</div>
+
+<% include partials/bottom %>
