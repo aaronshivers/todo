@@ -16,6 +16,10 @@ const todoSchema = new Schema({
     type: Boolean,
     required: false,
     default: false
+  },
+  creator: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 })
 
