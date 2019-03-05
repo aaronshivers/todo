@@ -31,7 +31,7 @@ describe('/todos', () => {
     })
 
     it('should respond 200 and get todos if user is logged in', async () => {
-      const token = new User().createAuthToken()
+      const token = await new User().createAuthToken()
 
       await request(app)
         .get('/todos')

@@ -4,7 +4,7 @@ module.exports = async (req, res, next) => {
   try {
     const secret = process.env.JWT_SECRET
     const token = req.header('x-auth-token')
-debugger
+console.log(token)
     req.user = await jwt.verify(token, secret)
 
     next()

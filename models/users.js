@@ -42,7 +42,9 @@ userSchema.methods.createAuthToken = function () {
   const payload = { _id: user._id, isAdmin: user.isAdmin }
   const secret = process.env.JWT_SECRET
   const options = { expiresIn: '2d' }
-  return jwt.sign(payload, secret, options)
+  const token = jwt.sign(payload, secret, options)
+      console.log(token)
+  return token
 }
 
 const User = mongoose.model('User', userSchema)
