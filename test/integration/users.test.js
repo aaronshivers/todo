@@ -1,8 +1,8 @@
 const expect = require('expect')
 const request = require('supertest')
 
-const app = require('./../app')
-const User = require('../models/user-model')
+const app = require('../../app')
+const User = require('../../models/users')
 const { users, populateUsers, tokens } = require('./seed')
 
 beforeEach(populateUsers)

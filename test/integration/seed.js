@@ -1,7 +1,7 @@
 const { ObjectId } = require('mongodb')
 
-const User = require('../models/user-model')
-const createToken = require('../middleware/create-token')
+const User = require('../../models/users')
+const createToken = require('../../middleware/create-token')
 
 const users = [{
   _id: new ObjectId(),

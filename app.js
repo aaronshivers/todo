@@ -9,8 +9,8 @@ const methodOverride = require('method-override')
 const app = express()
 const port = process.env.PORT
 
-const userRoutes = require('./routes/user-routes')
-const todoRoutes = require('./routes/todo-routes')
+const userRoutes = require('./routes/users')
+const todoRoutes = require('./routes/todos')
 
 app.set('view engine', 'ejs')
 
