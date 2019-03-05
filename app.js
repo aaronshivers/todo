@@ -5,6 +5,7 @@ const mongoose = require('./db/mongoose')
 const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const methodOverride = require('method-override')
+const compression = require('compression')
 
 const app = express()
 const port = process.env.PORT
@@ -15,6 +16,7 @@ const todoRoutes = require('./routes/todos')
 app.set('view engine', 'ejs')
 
 app.use(helmet())
+app.use(compression())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
