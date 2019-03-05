@@ -3,9 +3,10 @@ const router = express.Router()
 
 const Todo = require('../models/todos')
 const authenticateUser = require('../middleware/authenticate-user')
+const auth = require('../middleware/auth')
 const verifyCreator = require('../middleware/verify-creator')
 
-router.get('/todos', authenticateUser, async (req, res) => {
+router.get('/todos', auth, async (req, res) => {
   try {
     const { token } = req.cookies
 
@@ -15,7 +16,7 @@ router.get('/todos', authenticateUser, async (req, res) => {
 
     res.render('todos', { todos })
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send(error)
   }
 })
 
