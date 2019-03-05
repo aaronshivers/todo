@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
-const bcrypt = require('bcrypt')
-const saltingRounds = 10
+const jwt = require('jsonwebtoken')
 
 const hashPassword = require('../middleware/hash-password')
 
@@ -42,9 +41,7 @@ userSchema.methods.createAuthToken = function () {
   const payload = { _id: user._id, isAdmin: user.isAdmin }
   const secret = process.env.JWT_SECRET
   const options = { expiresIn: '2d' }
-  const token = jwt.sign(payload, secret, options)
-      console.log(token)
-  return token
+  return jwt.sign(payload, secret, options)
 }
 
 const User = mongoose.model('User', userSchema)
