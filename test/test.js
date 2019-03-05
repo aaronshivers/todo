@@ -363,8 +363,8 @@ describe('GET /admin', () => {
   })
 })
 
-// DELETE /logout
-describe('DELETE /logout', () => {
+// GET /logout
+describe('GET /logout', () => {
   it('should logout user and delete auth token', (done) => {
     const cookie = `token=${tokens[0]}`
     request(app)

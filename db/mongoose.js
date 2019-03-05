@@ -4,8 +4,8 @@ const username = process.env.MONGO_USER
 const password = process.env.MONGO_PASS
 const encodedpass = encodeURIComponent(password)
 const server = process.env.MONGO_SERVER
-const collection = process.env.MONGO_COLLECTION
-const url = `mongodb://${username}:${encodedpass}@${server}/${collection}`
+const database = process.env.MONGO_COLLECTION
+const url = `mongodb://${username}:${encodedpass}@${server}/${database}`
 
 mongoose.set('useNewUrlParser', true)
 mongoose.set('useFindAndModify', false)

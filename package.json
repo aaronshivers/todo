@@ -1,11 +1,12 @@
 {
-  "name": "login-app-json",
+  "name": "todo-app-2018-dec",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "mocha -t 50000 test/test.js"
+    "start": "export NODE_ENV=development && node app.js",
+    "test": "export NODE_ENV=test && mocha -t 50000 test/test.js",
+    "test-watch": "nodemon --exec 'npm test'"
   },
   "keywords": [],
   "author": "aaron shivers",
@@ -15,16 +16,18 @@
     "cookie-parser": "^1.4.3",
     "dotenv": "^6.2.0",
     "ejs": "^2.6.1",
-    "expect": "^23.6.0",
     "express": "^4.16.4",
     "helmet": "^3.15.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
     "method-override": "^3.0.0",
-    "mocha": "^5.2.0",
     "mongoose": "^5.4.0",
     "remove": "^0.1.5",
-    "supertest": "^3.3.0",
     "validator": "^10.10.0"
+  },
+  "devDependencies": {
+    "expect": "^24.1.0",
+    "mocha": "^6.0.2",
+    "supertest": "^3.4.2"
   }
 }
