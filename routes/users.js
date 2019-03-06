@@ -11,11 +11,6 @@ const authenticateAdmin = require('../middleware/authenticate-admin')
 
 const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
 
-// GET /
-router.get('/', (req, res) => {
-  res.render('home')
-})
-
 // POST /users
 router.post('/users', async (req, res) => {
   const { email, password } = req.body
