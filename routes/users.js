@@ -25,17 +25,19 @@ router.post('/users', async (req, res) => {
     // const existingUser = await User.findOne({ email })
     // if (existingUser) return res.status(400).send('User already registered.')
 
+    // validate password
+    const validPass = await validatePassword(password)
+    if (!validPass) return res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
+
     // create user
     const user = await new User({ email, password })
 
-    if (!validatePassword(user.password)) return res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
-
     // save user
-    await user.save()
+    const fart = await user.save()
 
     // get auth token
     const token = await createToken(user)
-      
+
     // set header and return user info
     res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
 

@@ -6,17 +6,26 @@ const authenticateUser = require('../middleware/authenticate-user')
 const auth = require('../middleware/auth')
 const verifyCreator = require('../middleware/verify-creator')
 
-router.get('/todos', auth, async (req, res) => {
+router.get('/todos', authenticateUser, async (req, res) => {
+  const { token } = req.cookies
+  
   try {
-
-    const todos = await Todo.find({ creator: req.user._id })
-    if (todos.length < 1) return res.status(404).send('No Todos Found')
-
+    const creator = await verifyCreator(token)
+    const todos = await Todo.find({ creator })
     res.render('todos', { todos })
   } catch (error) {
-    res.status(400).send(error)
+    console.log(error)
   }
 })
+
+// router.get('/todos', authenticateUser, (req, res) => {
+//   const { token } = req.cookies
+//   verifyCreator(token).then((creator) => {
+//     Todo.find({ creator }).then((todos) => {
+//       res.render('todos', { todos })
+//     })
+//   })
+// })
 
 router.get('/todos/new', authenticateUser, (req, res) => {
   res.render('new-todo')
@@ -27,8 +36,6 @@ router.post('/todos', authenticateUser, (req, res) => {
 
   verifyCreator(token).then((creator) => {
     const { title, completed } = req.body
-    console.log(token)
-    console.log(creator)
     const todo = new Todo({ title, completed, creator })
   
     todo.save().then(() => {
