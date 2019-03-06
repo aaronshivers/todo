@@ -21,68 +21,59 @@ describe('GET /', () => {
 // POST /users
 describe('POST /users', () => {
 
-  it('should create a new user', (done) => {
+  it('should create a new user', async () => {
     const { email, password } = users[2]
 
-    request(app)
+    await request(app)
       .post('/users')
       .send({ email, password })
       .expect(201)
       .expect((res) => {
         expect(res.text).toContain(email)
         expect(res.header).toHaveProperty('set-cookie')
-        // expect(res.header['set-cookie']).toBeTruthy()
+        expect(res.header['set-cookie']).toBeTruthy()
       })
-      .end((err) => {
-        if (err) {
-          return done(err)
-        } else {
-          User.findOne({email}).then((user) => {
-            expect(user).toBeTruthy()
-            expect(user.email).toEqual(email)
-            expect(user.password).not.toEqual(password)
-            done()
-          }).catch(err => done(err))
-        }
-      })
+
+      const user = await User.findOne({email})
+      expect(user).toBeTruthy()
+      expect(user.email).toEqual(email)
+      expect(user.password).not.toEqual(password)
   })
 
-  it('should NOT create a duplicate user', (done) => {
+  it('should NOT create a duplicate user', async () => {
     const { email, password } = users[0]
 
-    request(app)
+    await request(app)
       .post('/users')
       .send({ email, password })
       .expect(400)
       .expect((res) => {
         expect(res.header['set-cookie']).toBeFalsy()
       })
-      .end(done)
   })
 
-  it('should NOT create a user with an invalid email', (done) => {
+  it('should NOT create a user with an invalid email', async () => {
     const { email, password } = users[3]
 
-    request(app)
+    await request(app)
       .post('/users')
       .send({ email, password })
       .expect(400)
       .expect((res) => {
         expect(res.header['set-cookie']).toBeFalsy()
       })
-      .end(done)
   })
 
-  it('should NOT create a user with an invalid password', (done) => {
+  it('should NOT create a user with an invalid password', async () => {
     const { email, password } = users[4]
-    request(app)
+    
+    await request(app)
       .post('/users')
       .send({ email, password })
       .expect(400)
       .expect((res) => {
         expect(res.header['set-cookie']).toBeFalsy()
       })
-      .end(done)
   })
 })
 

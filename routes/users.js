@@ -17,20 +17,30 @@ router.get('/', (req, res) => {
 })
 
 // POST /users
-router.post('/users', (req, res) => {
-  const email = req.body.email
-  const password = req.body.password
-  const newUser = { email, password }
-  const user = new User(newUser)
+router.post('/users', async (req, res) => {
+  const { email, password } = req.body
 
-  if (validatePassword(newUser.password)) {
-    user.save().then((user) => {
-      createToken(user).then((token) => {
-        res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
-      }).catch(err => res.status(500).send(err.message))
-    }).catch(err => res.status(400).send(err.message))
-  } else {
-    res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
+  try {
+    // check db for existing user
+    // const existingUser = await User.findOne({ email })
+    // if (existingUser) return res.status(400).send('User already registered.')
+
+    // create user
+    const user = await new User({ email, password })
+
+    if (!validatePassword(user.password)) return res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
+
+    // save user
+    await user.save()
+
+    // get auth token
+    const token = await createToken(user)
+      
+    // set header and return user info
+    res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
+
+  } catch (error) {
+    res.status(400).send(error)
   }
 })
 
