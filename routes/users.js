@@ -18,8 +18,8 @@ router.post('/users', async (req, res) => {
 
   try {
     // check db for existing user
-    // const existingUser = await User.findOne({ email })
-    // if (existingUser) return res.status(400).send('User already registered.')
+    const existingUser = await User.findOne({ email })
+    if (existingUser) return res.status(400).send('User already registered.')
 
     // validate password
     const validPass = await validatePassword(password)
