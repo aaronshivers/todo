@@ -128,20 +128,25 @@ router.patch('/users/:id', authenticateUser, (req, res) => {
 })
 
 // GET /profile
-router.get('/profile', authenticateUser, (req, res) => {
-  const token = req.cookies.token
-  const secret = process.env.JWT_SECRET
-  const decoded = jwt.verify(token, secret)
-  const { _id } = decoded
+router.get('/profile', authenticateUser, async (req, res) => {
+  try {
+    const token = req.cookies.token
+    const secret = process.env.JWT_SECRET
+    const decoded = await jwt.verify(token, secret)
 
-  User.findById(_id).then((user) => {
-    if (user) {
-      res.render('profile', { user })
-    } else {
-      res.status(404).send('Sorry, that user id is not in our database.')
-    }
-  })
+    // find user by id
+    const user = await User.findById(decoded._id)
+
+    // reject if user is not found
+    if (!user) return res.status(404).send('User Not Found')
+
+    // send user data
+    res.render('profile', { user })
+  } catch (error) {
+    res.send(error.message)
+  }
 })
+
 // GET /login
 router.get('/login', (req, res) => {
   res.render('login')
