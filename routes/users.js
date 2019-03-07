@@ -7,7 +7,7 @@ const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
 const { User, userValidator } = require('../models/users')
 const validatePassword = require('../middleware/validate-password')
 const createToken = require('../middleware/create-token')
-const authenticateUser = require('../middleware/authenticate-user')
+const auth = require('../middleware/auth')
 const authenticateAdmin = require('../middleware/authenticate-admin')
 const validate = require('../middleware/validate')
 
@@ -60,7 +60,7 @@ router.get('/users', authenticateAdmin, (req, res) => {
 })
 
 // GET /users/:id
-router.get('/users/:id/view', authenticateUser, async (req, res) => {
+router.get('/users/:id/view', auth, async (req, res) => {
   const { id } = req.params
 
   try {
@@ -78,7 +78,7 @@ router.get('/users/:id/view', authenticateUser, async (req, res) => {
 })
 
 // DELETE /users/:id
-router.delete('/users/:id', authenticateUser, (req, res) => {
+router.delete('/users/:id', auth, (req, res) => {
   const { id } = req.params
 
   User.findByIdAndDelete(id).then((user) => {
@@ -95,7 +95,7 @@ router.delete('/users/:id', authenticateUser, (req, res) => {
 })
 
 // GET /users/:id/edit
-router.get('/users/:id/edit', authenticateUser, (req, res) => {
+router.get('/users/:id/edit', auth, (req, res) => {
   const { id } = req.params
 
   User.findById(id).then((user) => {
@@ -104,7 +104,7 @@ router.get('/users/:id/edit', authenticateUser, (req, res) => {
 })
 
 // PATCH /users/:id
-router.patch('/users/:id', [authenticateUser, validate(userValidator)], async (req, res) => {
+router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => {
 
   const { email, password } = req.body
   const { id } = req.params
@@ -140,7 +140,7 @@ router.patch('/users/:id', [authenticateUser, validate(userValidator)], async (r
 })
 
 // GET /profile
-router.get('/profile', authenticateUser, async (req, res) => {
+router.get('/profile', auth, async (req, res) => {
   try {
     const token = req.cookies.token
     const secret = process.env.JWT_SECRET
