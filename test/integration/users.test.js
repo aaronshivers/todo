@@ -138,27 +138,17 @@ describe('GET /users/:id/view', () => {
 // DELETE /users/:id
 describe('DELETE /users/:id', () => {
   
-  it('should delete the specified user', (done) => {
+  it('should delete the specified user and redirect to /', async () => {
     const { _id } = users[0]
     const cookie = `token=${tokens[0]}`
 
-    request(app)
+    await request(app)
       .delete(`/users/${ _id }`)
       .set('Cookie', cookie)
-      .expect(200)
-      .expect((res) => {
-        expect(res.body._id).toEqual(_id.toString())
-      })
-      .end((err) => {
-        if (err) {
-          return done(err)
-        } else {
-          User.findById(_id).then((user) => {
-            expect(user).toBeFalsy()
-            done()
-          }).catch(err => done(err))
-        }
-      })
+      .expect(302)
+
+      const user = await User.findById(_id)
+      expect(user).toBeFalsy()
   })
 
   it('should return 404 if the specified user is not found', (done) => {
@@ -259,12 +249,12 @@ describe('PATCH /users/:id', () => {
   })
 })
 
-// GET /profile
-describe('GET /profile', () => {
+// GET /users/profile
+describe('GET /users/profile', () => {
   it('should respond with 200 if user is logged in', (done) => {
     const cookie = `token=${tokens[0]}`
     request(app)
-      .get('/profile')
+      .get('/users/profile')
       .set('Cookie', cookie)
       .expect(200)
       .end(done)
@@ -272,7 +262,7 @@ describe('GET /profile', () => {
 
   it('should respond with 401 if user is NOT logged in', (done) => {
     request(app)
-      .get('/profile')
+      .get('/users/profile')
       .expect(401)
       .end(done)
   })
@@ -280,7 +270,7 @@ describe('GET /profile', () => {
   it('should respond with 400 if token is phony', (done) => {
     const cookie = `token=${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'}`
     request(app)
-      .get('/profile')
+      .get('/users/profile')
       .set('Cookie', cookie)
       .expect(400)
       .end(done)

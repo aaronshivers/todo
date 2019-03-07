@@ -104,8 +104,8 @@ router.delete('/users/:id', auth, async (req, res) => {
       sendCancelationEmail(user.email)
     }
     
-    // return deleted user
-    res.send(user)
+    // redirect to /
+    res.status(302).redirect('/')
 
   } catch (error) {
     res.send(error.message)
@@ -157,8 +157,8 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
   }
 })
 
-// GET /profile
-router.get('/profile', auth, async (req, res) => {
+// GET /users/profile
+router.get('/users/profile', auth, async (req, res) => {
   try {
     const token = req.cookies.token
     const secret = process.env.JWT_SECRET
@@ -191,7 +191,7 @@ router.post('/login', (req, res) => {
       bcrypt.compare(password, user.password, (err, hash) => {
         if (hash) {
           createToken(user).then((token) => {
-            res.cookie('token', token, cookieExpiration).status(200).redirect(`/profile`)
+            res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
           })
         } else {
           res.status(401).send('Please check your login credentials, and try again.')
