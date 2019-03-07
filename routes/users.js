@@ -8,7 +8,6 @@ const { User, userValidator } = require('../models/users')
 const validatePassword = require('../middleware/validate-password')
 const createToken = require('../middleware/create-token')
 const auth = require('../middleware/auth')
-const authenticateAdmin = require('../middleware/authenticate-admin')
 const validate = require('../middleware/validate')
 
 const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
@@ -197,7 +196,11 @@ router.post('/login', (req, res) => {
 })
 
 // GET /admin
-router.get('/admin', authenticateAdmin, (req, res) => {
+router.get('/admin', auth, (req, res) => {
+  // verify isAdmin === true
+  if (!req.user.isAdmin) return res.status(401).send('Access Denied! Admin Only!')
+
+  // render admin page
   res.render('admin')
 })
 
