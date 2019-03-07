@@ -106,29 +106,14 @@ router.get('/users/:id/edit', authenticateUser, (req, res) => {
 // PATCH /users/:id
 router.patch('/users/:id', [authenticateUser, validate(userValidator)], async (req, res) => {
 
+  const { email, password } = req.body
+  const { id } = req.params
+  
   try {
-    const { email, password } = req.body
-    const updates = Object.keys({ email, password })
-    
-    // reject if password is invalid
-    if (!validatePassword(password)) return res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
-
+        
     // hash password
     const saltRounds = 10
     const hash = await bcrypt.hash(password, saltRounds)
-
-    // find user
-    const user = await User.findById(req.params.id)
-
-    // reject if no user is found
-    if (!user) return res.status(404).send('User Not Found')
-
-    // set updates
-    for (const update of updates) {
-      if (req.body[update]) {
-        user[update] = req.body[update]
-      }
-    }
 
     // check for duplicate user
     const duplicateUser = await User.findOne({ email })
@@ -136,11 +121,19 @@ router.patch('/users/:id', [authenticateUser, validate(userValidator)], async (r
     // reject if duplicate user
     if (duplicateUser) return res.status(400).send('User Already Exists')
 
-    // save user
-    await user.save()
+    // set updates and options
+    const updates = { email, password: hash }
+    const options = { new: true, runValidators: true }
+
+    // update user
+    const user = await User.findByIdAndUpdate(id, updates, options)
+
+    // reject if no user is found
+    if (!user) return res.status(404).send('User Not Found')
 
     // redirect to users/profile
     res.status(201).redirect(`/users/profile`)
+
   } catch (error) {
     console.log(error)
   }
