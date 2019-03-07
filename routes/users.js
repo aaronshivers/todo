@@ -49,14 +49,25 @@ router.post('/users', async (req, res) => {
 })
 
 // GET /users
-router.get('/users', authenticateAdmin, (req, res) => {
-  User.find().then((users) => {
-    if (users.length === 0) {
-      res.status(404).send('Sorry, the database must be empty.')
-    } else {
-      res.render('users', { users })
-    }
-  })
+router.get('/users', auth, async (req, res) => {
+
+  try {
+
+    // verify isAdmin === true
+    if (!req.user.isAdmin) return res.status(401).send('Access Denied! Admin Only!')
+
+    // find users
+    const users = await User.find()
+      
+    // reject if no users found
+    if (users.length === 0) return res.status(404).send('No Users Found')
+        
+    // return users
+    res.render('users', { users })
+
+  } catch (error) {
+    res.send(error.message)
+  }
 })
 
 // GET /users/:id
