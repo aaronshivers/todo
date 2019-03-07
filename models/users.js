@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const Joi = require('joi')
-
-const hashPassword = require('../middleware/hash-password')
 
 const Schema = mongoose.Schema
 
@@ -35,7 +34,20 @@ const userSchema = new Schema({
   }
 })
 
-hashPassword(userSchema)
+// hash plain text passwords
+userSchema.pre('save', async function(next) {
+  const saltingRounds = 10
+
+  if (this.isModified || this.isNew) {
+    try {
+      const hash = await bcrypt.hash(this.password, saltingRounds)
+      this.password = hash
+    } catch (error) {
+      next(error)
+    }
+  }
+  next()
+})
 
 userSchema.methods.createAuthToken = function () {
   const user = this
