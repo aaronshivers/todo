@@ -10,7 +10,7 @@ module.exports = async (req, res, next) => {
     const secret = process.env.JWT_SECRET
     
     const decoded = await jwt.verify(token, secret)
-    // req.user = decoded
+    req.user = decoded
     
     next()
   } catch (error) {

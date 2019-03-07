@@ -2,11 +2,10 @@ const express = require('express')
 const router = express.Router()
 
 const Todo = require('../models/todos')
-const authenticateUser = require('../middleware/authenticate-user')
 const auth = require('../middleware/auth')
 const verifyCreator = require('../middleware/verify-creator')
 
-router.get('/todos', authenticateUser, async (req, res) => {
+router.get('/todos', auth, async (req, res) => {
   const { token } = req.cookies
   
   try {
@@ -18,7 +17,7 @@ router.get('/todos', authenticateUser, async (req, res) => {
   }
 })
 
-// router.get('/todos', authenticateUser, (req, res) => {
+// router.get('/todos', auth, (req, res) => {
 //   const { token } = req.cookies
 //   verifyCreator(token).then((creator) => {
 //     Todo.find({ creator }).then((todos) => {
@@ -27,11 +26,11 @@ router.get('/todos', authenticateUser, async (req, res) => {
 //   })
 // })
 
-router.get('/todos/new', authenticateUser, (req, res) => {
+router.get('/todos/new', auth, (req, res) => {
   res.render('new-todo')
 })
 
-router.post('/todos', authenticateUser, (req, res) => {
+router.post('/todos', auth, (req, res) => {
   const { token } = req.cookies
 
   verifyCreator(token).then((creator) => {
@@ -44,7 +43,7 @@ router.post('/todos', authenticateUser, (req, res) => {
   })
 })
 
-router.get('/todos/:id/edit', authenticateUser, (req, res) => {
+router.get('/todos/:id/edit', auth, (req, res) => {
   const { token } = req.cookies
   const _id = req.params.id
 
@@ -55,7 +54,7 @@ router.get('/todos/:id/edit', authenticateUser, (req, res) => {
   })
 })
 
-router.patch('/todos/:id', authenticateUser, (req, res) => {
+router.patch('/todos/:id', auth, (req, res) => {
   const { token } = req.cookies
   const _id = req.params.id
   const update = { title, completed } = req.body
@@ -69,7 +68,7 @@ router.patch('/todos/:id', authenticateUser, (req, res) => {
   })
 })
 
-router.delete('/todos/:id', authenticateUser, (req, res) => {
+router.delete('/todos/:id', auth, (req, res) => {
   const { token } = req.cookies
   const _id = req.params.id
   
