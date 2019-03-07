@@ -2,6 +2,7 @@ const express =  require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
 
 const User = require('../models/users')
 const validatePassword = require('../middleware/validate-password')
@@ -33,6 +34,9 @@ router.post('/users', async (req, res) => {
     // get auth token
     const token = await createToken(user)
 
+    // send welcome email
+    sendWelcomeEmail(email)
+
     // set header and return user info
     res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
 
@@ -53,16 +57,21 @@ router.get('/users', authenticateAdmin, (req, res) => {
 })
 
 // GET /users/:id
-router.get('/users/:id/view', authenticateUser, (req, res) => {
+router.get('/users/:id/view', authenticateUser, async (req, res) => {
   const { id } = req.params
 
-  User.findById(id).then((user) => {
-    if (user) {
-      res.render('view', { user })
-    } else {
-      res.status(404).send('Sorry, that user id is not in our database.')
-    }
-  })
+  try {
+    // find user by id
+    const user = await User.findById(id)
+
+    // reject if user not found
+    if (!user) return res.status(404).send('Sorry, that user id is not in our database.')
+    
+    // return found user
+    res.status(200).render('view', { user })
+  } catch (error) {
+    res.send(error.message)
+  }
 })
 
 // DELETE /users/:id
@@ -71,6 +80,9 @@ router.delete('/users/:id', authenticateUser, (req, res) => {
 
   User.findByIdAndDelete(id).then((user) => {
     if (user) {
+      // send cancellation email
+      sendCancelationEmail(user.email)
+      
       res.send(user)
     } else {
       res.status(404).send('Sorry, that user Id was not found in our database.')
