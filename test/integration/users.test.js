@@ -1,8 +1,9 @@
 const expect = require('expect')
 const request = require('supertest')
+const { ObjectId } = require('mongodb')
 
 const app = require('../../app')
-const User = require('../../models/users')
+const { User } = require('../../models/users')
 const { users, populateUsers, tokens } = require('./seed')
 
 beforeEach(populateUsers)
@@ -174,92 +175,87 @@ describe('DELETE /users/:id', () => {
 
 // PATCH /users
 describe('PATCH /users/:id', () => {
-  it('should update the specified user', (done) => {
+
+  it('should respond 401 if user is not logged in', async () => {
+    const { _id } = users[0]
+
+    await request(app)
+      .patch(`/users/${ _id }`)
+      .expect(401)
+  })
+
+  it('should respond 404 if ObjectId is not in DB', async () => {
+    const { _id } = new ObjectId()
+    const cookie = `token=${tokens[0]}`
+    const { email, password } = users[2]
+
+    await request(app)
+      .patch(`/users/${ _id }`)
+      .set('Cookie', cookie)
+      .send({ email, password })
+      .expect(404)
+  })
+
+
+  it('should respond 302, save the updated user, and redirect to /users/profile', async () => {
     const { _id } = users[0]
     const { email, password } = users[2]
     const cookie = `token=${tokens[0]}`
 
-    request(app)
+    await request(app)
       .patch(`/users/${ _id }`)
       .set('Cookie', cookie)
       .send({ email, password })
       .expect(302)
-      .expect((res) => {
-        // expect(res.text).toContain(_id.toString())
-        // expect(res.text).toContain(email)
-      })
-      .end((err) => {
-        if (err) {
-          return done(err)
-        } else {
-          User.findById(_id).then((user) => {
-            expect(user).toBeTruthy()
-            expect(user._id).toEqual(_id)
-            expect(user.email).toEqual(email)
-            expect(user.password).not.toEqual(password)
-            done()
-          }).catch(err => done(err))
-        }
-      })
+
+      const user = await User.findById(_id)
+      expect(user).toBeTruthy()
+      expect(user._id).toEqual(_id)
+      expect(user.email).toEqual(email)
+      expect(user.password).not.toEqual(password)
   })
 
-  it('should NOT create a duplicate user', (done) => {
+  it('should NOT create a duplicate user', async () => {
     const { _id } = users[0]
     const { email, password } = users[1]
     const cookie = `token=${tokens[0]}`
 
-    request(app)
+    await request(app)
       .patch(`/users/${ _id }`)
       .set('Cookie', cookie)
       .send({ email, password })
       .expect(400)
-      .end((err) => {
-        if (err) {
-          return done(err)
-        } else {
-          User.findById(_id).then((user) => {
-            expect(user._id).toEqual(_id)
-            expect(user.email).not.toEqual(email)
-            done()
-          }).catch(err => done(err))
-        }
-      })
+
+      const user = await User.findById(_id)
+      expect(user._id).toEqual(_id)
+      expect(user.email).not.toEqual(email)
   })
 
-  it('should NOT update a user with an invalid email', (done) => {
+  it('should NOT update a user with an invalid email', async () => {
     const { _id } = users[0]
-    const { email, password } = users[3]
     const cookie = `token=${tokens[0]}`
-
-    request(app)
+    const update = { email: 'invalid!email*com', password: users[0].password }
+    
+    await request(app)
       .patch(`/users/${ _id }`)
       .set('Cookie', cookie)
-      .send({ email, password })
+      .send(update)
       .expect(400)
-      .end((err) => {
-        if (err) {
-          return done(err)
-        } else {
-          User.findById(_id).then((user) => {
-            expect(user._id).toEqual(_id)
-            expect(user.email).not.toEqual(email)
-            done()
-          }).catch(err => done(err))
-        }
-      })
+
+    const user = await User.findById(_id)
+    expect(user._id).toEqual(_id)
+    expect(user.email).not.toEqual(update.email)
   })
 
-  it('should NOT update a user with an invalid password', (done) => {
+  it('should NOT update a user with an invalid password', async () => {
     const { _id } = users[0]
-    const { email, password } = users[4]
     const cookie = `token=${tokens[0]}`
 
-    request(app)
+    await request(app)
       .patch(`/users/${ _id }`)
       .set('Cookie', cookie)
-      .send({ email, password })
+      .send({ email: users[0].email, password: 'invalidpass' })
       .expect(400)
-      .end(done)
   })
 })
 

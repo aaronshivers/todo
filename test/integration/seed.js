@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb')
 
-const User = require('../../models/users')
+const {User} = require('../../models/users')
 const createToken = require('../../middleware/create-token')
 
 const users = [{
@@ -14,7 +14,7 @@ const users = [{
   password: 'Pass11234!' 
 }, {
   _id: new ObjectId(),
-  email: 'user2@example.com', // used for testing duplicate entries
+  email: 'user2@example.com', // valid data
   password: 'Pass21234!' 
 }, {
   _id: new ObjectId(),

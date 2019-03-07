@@ -4,11 +4,12 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
 
-const User = require('../models/users')
+const { User, userValidator } = require('../models/users')
 const validatePassword = require('../middleware/validate-password')
 const createToken = require('../middleware/create-token')
 const authenticateUser = require('../middleware/authenticate-user')
 const authenticateAdmin = require('../middleware/authenticate-admin')
+const validate = require('../middleware/validate')
 
 const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
 
@@ -103,27 +104,45 @@ router.get('/users/:id/edit', authenticateUser, (req, res) => {
 })
 
 // PATCH /users/:id
-router.patch('/users/:id', authenticateUser, (req, res) => {
-  const { id } = req.params
-  const email = req.body.email
-  const password = req.body.password
-  const updatedUser = { email, password }
-  const options = { new: true, runValidators: true }
-  const saltRounds = 10
-  
-  if (validatePassword(password)) {
-    bcrypt.hash(password, saltRounds).then((hash) => {
+router.patch('/users/:id', [authenticateUser, validate(userValidator)], async (req, res) => {
 
-      User.findByIdAndUpdate(id, { email, password: hash }, options).then((user) => {
-        if (user) {
-          res.status(201).redirect(`/users/${ id }/view`)
-        } else {
-          res.status(404).send('Sorry, that user Id was not found in our database.')
-        }
-      }).catch(err => res.status(400).send(err.message))
-    })
-  } else {
-    res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
+  try {
+    const { email, password } = req.body
+    const updates = Object.keys({ email, password })
+    
+    // reject if password is invalid
+    if (!validatePassword(password)) return res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
+
+    // hash password
+    const saltRounds = 10
+    const hash = await bcrypt.hash(password, saltRounds)
+
+    // find user
+    const user = await User.findById(req.params.id)
+
+    // reject if no user is found
+    if (!user) return res.status(404).send('User Not Found')
+
+    // set updates
+    for (const update of updates) {
+      if (req.body[update]) {
+        user[update] = req.body[update]
+      }
+    }
+
+    // check for duplicate user
+    const duplicateUser = await User.findOne({ email })
+
+    // reject if duplicate user
+    if (duplicateUser) return res.status(400).send('User Already Exists')
+
+    // save user
+    await user.save()
+
+    // redirect to users/profile
+    res.status(201).redirect(`/users/profile`)
+  } catch (error) {
+    console.log(error)
   }
 })
 
