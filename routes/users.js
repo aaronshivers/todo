@@ -88,20 +88,28 @@ router.get('/users/:id/view', auth, async (req, res) => {
 })
 
 // DELETE /users/:id
-router.delete('/users/:id', auth, (req, res) => {
+router.delete('/users/:id', auth, async (req, res) => {
   const { id } = req.params
 
-  User.findByIdAndDelete(id).then((user) => {
-    if (user) {
-      // send cancellation email
-      if (process.env.NODE_ENV === 'development') {
-        sendCancelationEmail(user.email)
-      }
-      res.send(user)
-    } else {
-      res.status(404).send('Sorry, that user Id was not found in our database.')
+  try {
+
+    // find and delete user
+    const user = await User.findByIdAndDelete(id)
+    
+    // reject if user was not found
+    if (!user) return res.status(404).send('User Not Found')
+    
+    // send cancellation email
+    if (process.env.NODE_ENV === 'development') {
+      sendCancelationEmail(user.email)
     }
-  })
+    
+    // return deleted user
+    res.send(user)
+
+  } catch (error) {
+    res.send(error.message)
+  }
 })
 
 // GET /users/:id/edit
