@@ -1,24 +1,19 @@
 const jwt = require('jsonwebtoken')
 
-const authenticateUser = (req, res, next) => {
-  const token = req.cookies.token
-  const secret = process.env.JWT_SECRET
+module.exports = async (req, res, next) => {
 
-  if (token) {
-    jwt.verify(token, secret, (err, decoded) => {
-      if (err) {
-        res.status(401).send(err.message)
-      } else {
-        if (decoded.admin) {
-          next()
-        } else {
-          res.status(401).send('Sorry, you must be an admin to view this page.')
-        }
-      }
-    })
-  } else {
-    res.status(401).send('You must login to view this page.')
+  try {
+    const token = req.cookies.token
+    const secret = process.env.JWT_SECRET
+
+    // decode and verify token
+    const decoded = await jwt.verify(token, secret)
+
+    // reject if user is not admin
+    if (!decoded.isAdmin) return res.status(401).send('Access Denied! Admin Only!')
+  
+    next()
+  } catch (error) {
+    res.status(401).send(error.message)
   }
 }
-
-module.exports = authenticateUser

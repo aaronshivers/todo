@@ -35,7 +35,9 @@ router.post('/users', async (req, res) => {
     const token = await createToken(user)
 
     // send welcome email
-    sendWelcomeEmail(email)
+    if (process.env.NODE_ENV === 'development') {
+      sendWelcomeEmail(email)
+    }
 
     // set header and return user info
     res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
@@ -81,8 +83,9 @@ router.delete('/users/:id', authenticateUser, (req, res) => {
   User.findByIdAndDelete(id).then((user) => {
     if (user) {
       // send cancellation email
-      sendCancelationEmail(user.email)
-      
+      if (process.env.NODE_ENV === 'development') {
+        sendCancelationEmail(user.email)
+      }
       res.send(user)
     } else {
       res.status(404).send('Sorry, that user Id was not found in our database.')

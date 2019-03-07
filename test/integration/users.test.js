@@ -80,17 +80,26 @@ describe('POST /users', () => {
 // GET /users
 describe('GET /users', () => {
 
-  it('should get all users', (done) => {
+  it('should respond 401 if user is NOT admin', async () => {
+    const cookie = `token=${tokens[1]}`
+
+    await request(app)
+      .get('/users')
+      .set('Cookie', cookie)
+      .expect(401)
+  })
+
+  it('should get all users if user is admin', async () => {
     const cookie = `token=${tokens[0]}`
 
-    request(app)
+    await request(app)
       .get('/users')
       .set('Cookie', cookie)
       .expect(200)
       .expect((res) => {
-        // expect(res.body.length).toBe(2)
+        expect(res.text).toContain(users[0].email)
+        expect(res.text).toContain(users[1].email)
       })
-      .end(done)
   })
 })
 
@@ -272,12 +281,12 @@ describe('GET /profile', () => {
       .end(done)
   })
 
-  it('should respond with 401 if token is phony', (done) => {
+  it('should respond with 400 if token is phony', (done) => {
     const cookie = `token=${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'}`
     request(app)
       .get('/profile')
       .set('Cookie', cookie)
-      .expect(401)
+      .expect(400)
       .end(done)
   })
 })

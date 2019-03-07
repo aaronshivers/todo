@@ -7,7 +7,7 @@ const users = [{
   _id: new ObjectId(),
   email: 'user0@example.com', // always saved to database
   password: 'Pass01234!',
-  admin: true 
+  isAdmin: true 
 }, {
   _id: new ObjectId(),
   email: 'user1@example.com', // always saved to database
