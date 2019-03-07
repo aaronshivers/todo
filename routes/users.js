@@ -19,11 +19,11 @@ router.post('/users', async (req, res) => {
   try {
     // check db for existing user
     const existingUser = await User.findOne({ email })
-    if (existingUser) return res.status(400).send('User already registered.')
+    if (existingUser) return res.status(400).render('error', { msg: 'User already registered.' })
 
     // validate password
     const validPass = await validatePassword(password)
-    if (!validPass) return res.status(400).send('Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.')
+    if (!validPass) return res.status(400).render('error', { msg: 'Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.' })
 
     // create user
     const user = await new User({ email, password })
@@ -43,7 +43,7 @@ router.post('/users', async (req, res) => {
     res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
 
   } catch (error) {
-    res.status(400).send(error)
+    res.status(400).render('error', { msg: error.message })
   }
 })
 
@@ -53,19 +53,19 @@ router.get('/users', auth, async (req, res) => {
   try {
 
     // verify isAdmin === true
-    if (!req.user.isAdmin) return res.status(401).send('Access Denied! Admin Only!')
+    if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
 
     // find users
     const users = await User.find()
       
     // reject if no users found
-    if (users.length === 0) return res.status(404).send('No Users Found')
+    if (users.length === 0) return res.status(404).render('error', { msg: 'No Users Found' })
         
     // return users
     res.render('users', { users })
 
   } catch (error) {
-    res.send(error.message)
+    res.render('error', { msg: error.message })
   }
 })
 
@@ -78,12 +78,12 @@ router.get('/users/:id/view', auth, async (req, res) => {
     const user = await User.findById(id)
 
     // reject if user not found
-    if (!user) return res.status(404).send('Sorry, that user id is not in our database.')
+    if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
     
     // return found user
     res.status(200).render('view', { user })
   } catch (error) {
-    res.send(error.message)
+    res.render('error', { msg: error.message })
   }
 })
 
@@ -97,7 +97,7 @@ router.delete('/users/:id', auth, async (req, res) => {
     const user = await User.findByIdAndDelete(id)
     
     // reject if user was not found
-    if (!user) return res.status(404).send('User Not Found')
+    if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
     
     // send cancellation email
     if (process.env.NODE_ENV === 'development') {
@@ -108,7 +108,7 @@ router.delete('/users/:id', auth, async (req, res) => {
     res.status(302).redirect('/')
 
   } catch (error) {
-    res.send(error.message)
+    res.render('error', { msg: error.message })
   }
 })
 
@@ -137,7 +137,7 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
     const duplicateUser = await User.findOne({ email })
 
     // reject if duplicate user
-    if (duplicateUser) return res.status(400).send('User Already Exists')
+    if (duplicateUser) return res.status(400).render('error', { msg: 'User Already Exists' })
 
     // set updates and options
     const updates = { email, password: hash }
@@ -147,7 +147,7 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
     const user = await User.findByIdAndUpdate(id, updates, options)
 
     // reject if no user is found
-    if (!user) return res.status(404).send('User Not Found')
+    if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
 
     // redirect to users/profile
     res.status(201).redirect(`/users/profile`)
@@ -168,12 +168,12 @@ router.get('/users/profile', auth, async (req, res) => {
     const user = await User.findById(decoded._id)
 
     // reject if user is not found
-    if (!user) return res.status(404).send('User Not Found')
+    if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
 
     // send user data
     res.render('profile', { user })
   } catch (error) {
-    res.send(error.message)
+    res.render('error', { msg: error.message })
   }
 })
 
@@ -194,19 +194,19 @@ router.post('/login', (req, res) => {
             res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
           })
         } else {
-          res.status(401).send('Please check your login credentials, and try again.')
+          res.status(401).render('error', { msg: 'Please check your login credentials, and try again.' })
         }
       })
     } else {
-      res.status(404).send('Sorry, we could not find that user in our database.')
+      res.status(404).render('error', { msg: 'Sorry, we could not find that user in our database.' })
     }
-  }).catch(err => res.status(401).send('Please check your login credentials, and try again.'))
+  }).catch(err => res.status(401).render('error', { msg: 'Login Failed' }))
 })
 
 // GET /admin
 router.get('/admin', auth, (req, res) => {
   // verify isAdmin === true
-  if (!req.user.isAdmin) return res.status(401).send('Access Denied! Admin Only!')
+  if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
 
   // render admin page
   res.render('admin')

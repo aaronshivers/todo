@@ -13,7 +13,7 @@ router.get('/todos', auth, async (req, res) => {
     const todos = await Todo.find({ creator })
     res.render('todos', { todos })
   } catch (error) {
-    console.log(error)
+    res.render('error', { msg: error.message })
   }
 })
 

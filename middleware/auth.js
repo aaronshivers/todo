@@ -5,7 +5,7 @@ module.exports = async (req, res, next) => {
   try {
     // const token = req.header('x-auth-token')
     const token = req.cookies.token
-    if (!token) return res.status(401).send('Access Denied! No Token Provided.')
+    if (!token) return res.status(401).render('error', { msg: 'Access Denied! No Token Provided.' })
 
     const secret = process.env.JWT_SECRET
     
@@ -14,6 +14,6 @@ module.exports = async (req, res, next) => {
     
     next()
   } catch (error) {
-    res.status(400).send('Access Denied! Invalid Token.')
+    res.status(400).render('error', { msg: 'Access Denied! Invalid Token.' })
   }
 }
