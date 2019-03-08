@@ -183,24 +183,32 @@ router.get('/login', (req, res) => {
 })
 
 // POST /login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      bcrypt.compare(password, user.password, (err, hash) => {
-        if (hash) {
-          createToken(user).then((token) => {
-            res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
-          })
-        } else {
-          res.status(401).render('error', { msg: 'Please check your login credentials, and try again.' })
-        }
-      })
-    } else {
-      res.status(404).render('error', { msg: 'Sorry, we could not find that user in our database.' })
-    }
-  }).catch(err => res.status(401).render('error', { msg: 'Login Failed' }))
+  try {
+    
+    // find user by email
+    const user = await User.findOne({ email })
+
+    // reject if user is not found
+    if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
+    
+    // verify user password
+    const hash = await bcrypt.compare(password, user.password)
+    
+    // reject if password is incorrect
+    if (!hash) return res.status(401).render('error', { msg: 'Please check your login credentials, and try again.' })
+    
+    // create token
+    const token = await createToken(user)
+
+    // set cookie and redirect to /users/profile
+    res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
+      
+  } catch (error) {
+    res.render('error', { msg: error.message })
+  }
 })
 
 // GET /admin
