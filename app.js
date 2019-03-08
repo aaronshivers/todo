@@ -1,14 +1,31 @@
 require('dotenv').config()
 
 const express = require('express')
-const mongoose = require('./db/mongoose')
+const { mongoose, url } = require('./db/mongoose')
 const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const methodOverride = require('method-override')
 const compression = require('compression')
+const winston = require('winston')
+require('winston-mongodb')
 
 const app = express()
 const port = process.env.PORT
+
+// Handle uncaught exceptions
+winston.exceptions.handle(new winston.transports.File({ filename: 'uncaughtExceptions.log', level: 'error'}))
+winston.exceptions.handle(new winston.transports.Console({ colorize: true, prettyPrint: true }))
+
+//Handle unhandled rejections
+process.on('unhandledRejection', exception => {
+  throw exception.message
+})
+
+// Error Logging
+winston.add(new winston.transports.Console({ colorize: true, prettyPrint: true }))
+winston.add(new winston.transports.File({ filename: 'logfile.log', level: 'info' }))
+winston.add(new winston.transports.MongoDB ({ db: url, level: 'info' }))
+
 
 const indexRoutes = require('./routes/index')
 const userRoutes = require('./routes/users')
@@ -36,6 +53,6 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.message)
 })
 
-app.listen(port)
+app.listen(port, () => winston.info(`Server listening on port ${ port }.`))
 
 module.exports = app

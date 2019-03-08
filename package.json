@@ -18,7 +18,7 @@
     "dotenv": "^6.2.0",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "helmet": "^3.15.0",
+    "helmet": "^3.15.1",
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
@@ -27,7 +27,9 @@
     "mongoose": "^5.4.0",
     "postmark": "^2.2.4",
     "remove": "^0.1.5",
-    "validator": "^10.10.0"
+    "validator": "^10.10.0",
+    "winston": "^3.2.1",
+    "winston-mongodb": "^4.0.3"
   },
   "devDependencies": {
     "expect": "^24.1.0",
