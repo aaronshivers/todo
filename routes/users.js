@@ -113,12 +113,14 @@ router.delete('/users/:id', auth, async (req, res) => {
 })
 
 // GET /users/:id/edit
-router.get('/users/:id/edit', auth, (req, res) => {
+router.get('/users/:id/edit', auth, async (req, res) => {
   const { id } = req.params
 
-  User.findById(id).then((user) => {
-    res.render('edit', { user })
-  })
+  // find user by id
+  const user = await User.findById(id)
+
+  // render edit page with user
+  res.render('edit', { user })
 })
 
 // PATCH /users/:id
@@ -187,7 +189,7 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
   try {
-    
+
     // find user by email
     const user = await User.findOne({ email })
 
