@@ -11,11 +11,10 @@ beforeEach(populateUsers)
 // GET /
 describe('GET /', () => {
 
-  it('should respond with 200', (done) => {
-    request(app)
+  it('should respond with 200', async () => {
+    await request(app)
       .get('/')
       .expect(200)
-      .end(done)
   })
 })
 
