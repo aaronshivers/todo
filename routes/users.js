@@ -13,17 +13,13 @@ const validate = require('../middleware/validate')
 const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
 
 // POST /users
-router.post('/users', async (req, res) => {
+router.post('/users', validate(userValidator), async (req, res) => {
   const { email, password } = req.body
 
   try {
     // check db for existing user
     const existingUser = await User.findOne({ email })
     if (existingUser) return res.status(400).render('error', { msg: 'User already registered.' })
-
-    // validate password
-    const validPass = await validatePassword(password)
-    if (!validPass) return res.status(400).render('error', { msg: 'Password must contain 8-100 characters, with at least one lowercase letter, one uppercase letter, one number, and one special character.' })
 
     // create user
     const user = await new User({ email, password })
