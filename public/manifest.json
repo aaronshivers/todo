@@ -1,0 +1,7 @@
+{
+  "short_name": "Todo",
+  "name": "Todo App",
+  "background_color": "#2C3E50",
+  "display": "minimal-ui",
+  "theme_color": "#2C3E50"
+}
