@@ -31,6 +31,11 @@ const userSchema = new Schema({
     type: Boolean,
     required: false,
     default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    required: true
   }
 })
 

@@ -20,6 +20,11 @@ const todoSchema = new Schema({
   creator: {
     type: Schema.Types.ObjectId,
     ref: 'User'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+    required: true
   }
 })
 

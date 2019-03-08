@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const moment = require('moment')
 
 const Todo = require('../models/todos')
 const auth = require('../middleware/auth')
@@ -11,7 +12,7 @@ router.get('/todos', auth, async (req, res) => {
   try {
     const creator = await verifyCreator(token)
     const todos = await Todo.find({ creator })
-    res.render('todos', { todos })
+    res.render('todos', { todos, moment })
   } catch (error) {
     res.render('error', { msg: error.message })
   }

@@ -23,6 +23,7 @@
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
     "method-override": "^3.0.0",
+    "moment": "^2.24.0",
     "mongoose": "^5.4.0",
     "postmark": "^2.2.4",
     "remove": "^0.1.5",
