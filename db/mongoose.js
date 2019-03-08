@@ -1,18 +1,24 @@
 const mongoose = require('mongoose')
 const winston = require('winston')
 
-const username = process.env.MONGO_USER
-const password = process.env.MONGO_PASS
-const encodedpass = encodeURIComponent(password)
-const server = process.env.MONGO_SERVER
-const database = process.env.MONGO_COLLECTION
-const url = `mongodb://${username}:${encodedpass}@${server}/${database}`
+const {
+  MONGO_USER,
+  MONGO_PASS,
+  MONGO_SERVER,
+  MONGO_COLLECTION,
+  NODE_ENV
+} = process.env
 
-mongoose.set('useNewUrlParser', true)
-mongoose.set('useFindAndModify', false)
-mongoose.set('useCreateIndex', true)
+const encodedpass = encodeURIComponent(MONGO_PASS)
+const url = `mongodb://${ MONGO_USER }:${ encodedpass }@${ MONGO_SERVER }/${ MONGO_COLLECTION }`
 
-mongoose.connect(url)
+options = {
+  'useNewUrlParser': true,
+  'useCreateIndex': true,
+  'useFindAndModify': false
+}
+
+mongoose.connect(url, options)
   .then(() => winston.info(`Connected to ${ process.env.NODE_ENV } Database`))
 
 module.exports = { mongoose, url }
