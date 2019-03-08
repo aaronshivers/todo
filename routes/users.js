@@ -29,7 +29,7 @@ router.post('/users', async (req, res) => {
     const user = await new User({ email, password })
 
     // save user
-    const fart = await user.save()
+    await user.save()
 
     // get auth token
     const token = await createToken(user)
