@@ -70,4 +70,31 @@ describe('/todos', () => {
         })
     })
   })
+
+  describe('POST /todos/', () => {
+    it('should respond 401 if user is NOT logged in', async () => {})
+    it('should respond 400 if data is invalid', async () => {})
+    it('should respond 302 create the todo and redirect to /todos', async () => {})
+  })
+
+  describe('GET /todos/:id', () => {
+    it('should respond 401 if user is NOT logged in', async () => {})
+    it('should respond 404 if id is in the DB', async () => {})
+    it('should respond 401 if user is NOT creator', async () => {})
+    it('should respond 200 and display the todo', async () => {})
+  })
+
+  describe('PATCH /todos/:id', () => {
+    it('should respond 401 if user is NOT logged in', async () => {})
+    it('should respond 404 if id is in the DB', async () => {})
+    it('should respond 401 if user is NOT creator', async () => {})
+    it('should respond 302 update the todo and redirect to /todos', async () => {})
+  })
+  
+  describe('DELETE /todos/:id', () => {
+    it('should respond 401 if user is NOT logged in', async () => {})
+    it('should respond 404 if id is in the DB', async () => {})
+    it('should respond 401 if user is NOT creator', async () => {})
+    it('should respond 302 delete the todo and redirect to /todos', async () => {})
+  })
 })
