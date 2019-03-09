@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb')
 
-const {User} = require('../../models/users')
+const { User } = require('../../models/users')
 const createAuthToken = require('../../middleware/createAuthToken')
 
 const users = [{
@@ -26,24 +26,24 @@ const users = [{
   password: 'pass41234' // invalid password
 }]
 
-const populateUsers = (done) => {
-  User.deleteMany().then(() => {
-    const user0 = new User(users[0]).save()
-    const user1 = new User(users[1]).save()
+const populateUsers = async () => {
+  // delete users
+  await User.deleteMany()
 
-    return Promise.all([user0, user1])
-  }).then(() => done())
+  // create and save users
+  const user0 = new User(users[0]).save()
+  const user1 = new User(users[1]).save()
+
+  return Promise.all([user0, user1])
 }
 
 const tokens = []
 
-createAuthToken(users[0]).then((token) => {
-  tokens.push(token)
-})
+createAuthToken(users[0])
+  .then((token) => tokens.push(token))
 
-createAuthToken(users[1]).then((token) => {
-  tokens.push(token)
-})
+createAuthToken(users[1])
+  .then((token) => tokens.push(token))
 
 module.exports = {
   users,
