@@ -137,7 +137,7 @@ describe('GET /users/:id/view', () => {
 // DELETE /users/:id
 describe('DELETE /users/:id', () => {
   
-  it('should delete the specified user and redirect to /', async () => {
+  it('should delete the specified user delete the cookie and redirect to /', async () => {
     const { _id } = users[0]
     const cookie = `token=${tokens[0]}`
 
@@ -145,6 +145,10 @@ describe('DELETE /users/:id', () => {
       .delete(`/users/${ _id }`)
       .set('Cookie', cookie)
       .expect(302)
+      .expect((res) => {
+        expect(res.header.location).toEqual('/')
+        expect(res.header['set-cookie']).toEqual(["token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"])
+      })
 
       const user = await User.findById(_id)
       expect(user).toBeFalsy()

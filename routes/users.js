@@ -99,8 +99,8 @@ router.delete('/users/:id', auth, async (req, res) => {
       sendCancelationEmail(user.email)
     }
     
-    // redirect to /
-    res.status(302).redirect('/')
+    // delete cookie and redirect to /
+    res.status(302).clearCookie('token').redirect('/')
 
   } catch (error) {
     res.render('error', { msg: error.message })
