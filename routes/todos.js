@@ -8,10 +8,13 @@ const verifyCreator = require('../middleware/verify-creator')
 
 router.get('/todos', auth, async (req, res) => {
   const { token } = req.cookies
-  
+  console.log(req.user._id)
+
   try {
-    const creator = await verifyCreator(token)
-    const todos = await Todo.find({ creator })
+    // find todos by creator
+    const todos = await Todo.find({ creator: req.user._id })
+
+    // return todos
     res.render('todos', { todos, moment })
   } catch (error) {
     res.render('error', { msg: error.message })

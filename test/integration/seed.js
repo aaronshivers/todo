@@ -1,7 +1,7 @@
 const { ObjectId } = require('mongodb')
 
 const {User} = require('../../models/users')
-const createToken = require('../../middleware/create-token')
+const createAuthToken = require('../../middleware/createAuthToken')
 
 const users = [{
   _id: new ObjectId(),
@@ -37,11 +37,11 @@ const populateUsers = (done) => {
 
 const tokens = []
 
-createToken(users[0]).then((token) => {
+createAuthToken(users[0]).then((token) => {
   tokens.push(token)
 })
 
-createToken(users[1]).then((token) => {
+createAuthToken(users[1]).then((token) => {
   tokens.push(token)
 })
 

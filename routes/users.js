@@ -6,7 +6,6 @@ const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
 
 const { User, userValidator } = require('../models/users')
 const validatePassword = require('../middleware/validate-password')
-const createToken = require('../middleware/create-token')
 const auth = require('../middleware/auth')
 const validate = require('../middleware/validate')
 
@@ -28,7 +27,7 @@ router.post('/users', validate(userValidator), async (req, res) => {
     await user.save()
 
     // get auth token
-    const token = await createToken(user)
+    const token = await user.createAuthToken()
 
     // send welcome email
     if (process.env.NODE_ENV === 'development') {
@@ -199,7 +198,7 @@ router.post('/login', async (req, res) => {
     if (!hash) return res.status(401).render('error', { msg: 'Please check your login credentials, and try again.' })
     
     // create token
-    const token = await createToken(user)
+    const token = await user.createAuthToken()
 
     // set cookie and redirect to /users/profile
     res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
