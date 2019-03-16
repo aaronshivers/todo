@@ -6,8 +6,6 @@ const app = require('../../app')
 const Todo = require('../../models/todos')
 const { User } = require('../../models/users')
 
-let token
-
 beforeEach(async () => {
   await User.deleteMany()
   await Todo.deleteMany()
@@ -39,20 +37,24 @@ describe('/todos', () => {
   const exec = () => {
     return request(app)
       .get('/todos')
-      .set('x-auth-token', token)
+      .set('Cookie', cookie)
   }
 
   describe('GET /todos', () => {
     it('should respond 401 if user is NOT logged in', async () => {
-      token = ''
 
-      await exec().expect(401)
+      await request(app)
+        .get('/todos')
+        .expect(401)
     })
 
     it('should display an empty table if no todos are found', async () => {
+      const cookie = `token=${token}`
       await Todo.deleteMany()
 
-      await exec()
+      await request(app)
+        .get('/todos')
+        .set('Cookie', cookie)
         .expect(200)
         .expect(res => {
           expect(res.text).not.toContain('todo0')
@@ -61,8 +63,11 @@ describe('/todos', () => {
     })
 
     it('should respond 200 and get todos if user is logged in, and is creator', async () => {
+      const cookie = `token=${token}`
 
-      await exec()
+      await request(app)
+        .get('/todos')
+        .set('Cookie', cookie)
         .expect(200)
         .expect(res => {
           expect(res.text).toContain('todo0')

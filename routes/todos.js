@@ -7,8 +7,6 @@ const auth = require('../middleware/auth')
 const verifyCreator = require('../middleware/verify-creator')
 
 router.get('/todos', auth, async (req, res) => {
-  const { token } = req.cookies
-  console.log(req.user._id)
 
   try {
     // find todos by creator
