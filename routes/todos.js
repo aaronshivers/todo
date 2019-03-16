@@ -25,17 +25,27 @@ router.get('/todos/new', auth, (req, res) => {
   res.render('new-todo')
 })
 
-router.post('/todos', [auth, validate(validateTodo)], (req, res) => {
-  const { token } = req.cookies
+router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
+  try {
 
-  verifyCreator(token).then((creator) => {
-    const { title, completed } = req.body
-    const todo = new Todo({ title, completed, creator })
-  
-    todo.save().then(() => {
-      res.redirect('/todos')
-    })
-  })
+    // get title from the body
+    const { title } = req.body
+
+    // get user id
+    const { _id } = req.user
+
+    // create new todo
+    const todo = new Todo({ title, creator: _id })
+
+    // save todo
+    await todo.save()
+    
+    // redirect to /todos  
+    res.status(302).redirect('/todos')
+
+  } catch (error) {
+    res.render('error', { msg: error.message })
+  }
 })
 
 router.get('/todos/:id/edit', auth, (req, res) => {
