@@ -11,8 +11,11 @@ const validateTodo = require('../middleware/validateTodo')
 router.get('/todos', auth, async (req, res) => {
 
   try {
+    // get user info
+    const { user } = req
+
     // find todos by creator
-    const todos = await Todo.find({ creator: req.user._id })
+    const todos = await Todo.find({ creator: user._id })
 
     // return todos
     res.render('todos', { todos, moment })

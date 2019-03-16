@@ -6,6 +6,9 @@ const app = require('../../app')
 const Todo = require('../../models/todos')
 const { User } = require('../../models/users')
 
+let token
+let todos = []
+
 beforeEach(async () => {
   await User.deleteMany()
   await Todo.deleteMany()
@@ -20,7 +23,8 @@ beforeEach(async () => {
 
   token = await user.createAuthToken()
 
-  const todos = [{
+  todos = [{
+    _id: new ObjectId(),
     title: 'todo0',
     creator: user._id
   }, {
@@ -35,6 +39,7 @@ beforeEach(async () => {
 describe('/todos', () => {
 
   describe('GET /todos', () => {
+
     it('should respond 401 if user is NOT logged in', async () => {
 
       await request(app)
@@ -43,8 +48,9 @@ describe('/todos', () => {
     })
 
     it('should display an empty table if no todos are found', async () => {
-      const cookie = `token=${token}`
       await Todo.deleteMany()
+
+      const cookie = `token=${ token }`
 
       await request(app)
         .get('/todos')
@@ -57,8 +63,9 @@ describe('/todos', () => {
     })
 
     it('should respond 200 and get todos if user is logged in, and is creator', async () => {
-      const cookie = `token=${token}`
 
+      const cookie = `token=${ token }`
+      
       await request(app)
         .get('/todos')
         .set('Cookie', cookie)
@@ -76,9 +83,10 @@ describe('/todos', () => {
         .post('/todos')
         .expect(401)
     })
+
     it('should respond 400 if data is invalid', async () => {
-      const cookie = `token=${token}`
       const todo = { title: 1234 }
+      const cookie = `token=${ token }`
 
       await request(app)
         .post('/todos')
@@ -91,7 +99,7 @@ describe('/todos', () => {
     })
 
     it('should respond 302 create the todo and redirect to /todos', async () => {
-      const cookie = `token=${token}`
+      const cookie = `token=${ token }`
       const todo = { title: 'hello' }
 
       await request(app)
@@ -108,9 +116,30 @@ describe('/todos', () => {
     })
   })
 
-  describe('GET /todos/:id', () => {
-    it('should respond 401 if user is NOT logged in', async () => {})
-    it('should respond 404 if id is in the DB', async () => {})
+  describe('GET /todos/:id/edit', () => {
+
+    it('should respond 401 if user is NOT logged in', async () => {
+
+      await request(app)
+        .get(`/todos/${ todos[0]._id }/edit`)
+        .expect(401)
+    })
+
+    it('should respond 400 if id is invalid', async () => {
+      const cookie = `token=${ token }`
+
+      await request(app)
+        .get(`/todos/${ '1234jsdo7823' }/edit`)
+        .set('Cookie', cookie)
+        .expect(400)
+    })
+    // it('should respond 404 if id is in the DB', async () => {
+
+    //   await request(app)
+    //     .get(`/todos/${ new ObjectId() }/edit`)
+        // .set('Cookie', cookie)
+    //     .expect(404)
+    // })
     it('should respond 401 if user is NOT creator', async () => {})
     it('should respond 200 and display the todo', async () => {})
   })
