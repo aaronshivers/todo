@@ -6,38 +6,38 @@ const app = require('../../app')
 const Todo = require('../../models/todos')
 const { User } = require('../../models/users')
 
-let token
-let todos = []
-
-beforeEach(async () => {
-  await User.deleteMany()
-  await Todo.deleteMany()
-
-  const userObj = {
-    _id: new ObjectId(),
-    email: 'user@test.com',
-    password: 'asdfASDF1234!@#$'
-  }
-
-  const user = await new User(userObj).save()
-
-  token = await user.createAuthToken()
-
-  todos = [{
-    _id: new ObjectId(),
-    title: 'todo0',
-    completed: false,
-    creator: user._id
-  }, {
-    title: 'todo1',
-    creator: new ObjectId()
-  }]
-
-  await new Todo(todos[0]).save()
-  await new Todo(todos[1]).save()
-})
-
 describe('/todos', () => {
+
+  let token
+  let todos = []
+  
+  beforeEach(async () => {
+    await User.deleteMany()
+    await Todo.deleteMany()
+
+    const userObj = {
+      _id: new ObjectId(),
+      email: 'user@test.com',
+      password: 'asdfASDF1234!@#$'
+    }
+
+    const user = await new User(userObj).save()
+
+    token = await user.createAuthToken()
+
+    todos = [{
+      _id: new ObjectId(),
+      title: 'todo0',
+      completed: false,
+      creator: user._id
+    }, {
+      title: 'todo1',
+      creator: new ObjectId()
+    }]
+
+    await new Todo(todos[0]).save()
+    await new Todo(todos[1]).save()
+  })
 
   describe('GET /todos', () => {
 
