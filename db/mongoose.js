@@ -13,9 +13,9 @@ const encodedpass = encodeURIComponent(MONGO_PASS)
 const url = `mongodb://${ MONGO_USER }:${ encodedpass }@${ MONGO_SERVER }/${ MONGO_COLLECTION }`
 
 options = {
-  'useNewUrlParser': true,
-  'useCreateIndex': true,
-  'useFindAndModify': false
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false
 }
 
 mongoose.connect(url, options)
