@@ -276,4 +276,24 @@ describe('/todos', () => {
       expect(foundTodo).toBeFalsy()
     })
   })
+
+
+  describe('GET /todos/new', () => {
+
+    it('should respond 401 if user is NOT logged in', async () => {
+
+      await request(app)
+        .get('/todos')
+        .expect(401)
+    })
+
+    it('should respond 200 if user is logged in', async () => {
+      const cookie = `token=${ token }`
+
+      await request(app)
+        .get('/todos')
+        .set('Cookie', cookie)
+        .expect(200)
+    })
+  })
 })
