@@ -129,19 +129,28 @@ describe('/todos', () => {
       const cookie = `token=${ token }`
 
       await request(app)
-        .get(`/todos/${ '1234jsdo7823' }/edit`)
+        .get(`/todos/1234/edit`)
         .set('Cookie', cookie)
         .expect(400)
     })
-    // it('should respond 404 if id is in the DB', async () => {
 
-    //   await request(app)
-    //     .get(`/todos/${ new ObjectId() }/edit`)
-        // .set('Cookie', cookie)
-    //     .expect(404)
-    // })
-    it('should respond 401 if user is NOT creator', async () => {})
-    it('should respond 200 and display the todo', async () => {})
+    it('should respond 404 if id is NOT in the DB, or user is NOT the creator', async () => {
+      const cookie = `token=${ token }`
+
+      await request(app)
+        .get(`/todos/${ new ObjectId() }/edit`)
+        .set('Cookie', cookie)
+        .expect(404)
+    })
+
+    it('should respond 200 and display the todo', async () => {
+      const cookie = `token=${ token }`
+
+      await request(app)
+        .get(`/todos/${ todos[0]._id }/edit`)
+        .set('Cookie', cookie)
+        .expect(200)
+    })
   })
 
   describe('PATCH /todos/:id', () => {

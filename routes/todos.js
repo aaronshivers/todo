@@ -7,6 +7,7 @@ const auth = require('../middleware/auth')
 const verifyCreator = require('../middleware/verify-creator')
 const validate = require('../middleware/validate')
 const validateTodo = require('../middleware/validateTodo')
+const validateObjectId = require('../middleware/validateObjectId')
 
 router.get('/todos', auth, async (req, res) => {
 
@@ -51,15 +52,30 @@ router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
   }
 })
 
-router.get('/todos/:id/edit', auth, (req, res) => {
-  const { token } = req.cookies
-  const _id = req.params.id
+router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
+  try {
+    
+    // get user info
+    const { user } = req
 
-  verifyCreator(token).then((creator) => {
-    Todo.findOne({ _id, creator }).then((todo) => {
-      res.render('edit-todo', { todo })
-    })
-  })
+    // get todo id
+    const { id } = req.params
+
+    // find todo by todo id and user id
+    const todo = await Todo.findOne({ _id: id, creator: user._id })
+    
+    // reject if todo is not found in the DB
+    if (!todo) return res.status(404).render('error', { msg: 'Todo Not Found' })
+
+    // render todo data
+    res.render('edit-todo', { todo })
+
+  } catch (error) {
+
+    // send error message
+    res.render('error', { msg: error.message })
+
+  }
 })
 
 router.patch('/todos/:id', auth, (req, res) => {
