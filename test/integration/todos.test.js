@@ -34,12 +34,6 @@ beforeEach(async () => {
 
 describe('/todos', () => {
 
-  const exec = () => {
-    return request(app)
-      .get('/todos')
-      .set('Cookie', cookie)
-  }
-
   describe('GET /todos', () => {
     it('should respond 401 if user is NOT logged in', async () => {
 
@@ -76,10 +70,42 @@ describe('/todos', () => {
     })
   })
 
-  describe('POST /todos/', () => {
-    it('should respond 401 if user is NOT logged in', async () => {})
-    it('should respond 400 if data is invalid', async () => {})
-    it('should respond 302 create the todo and redirect to /todos', async () => {})
+  describe('POST /todos', () => {
+    it('should respond 401 if user is NOT logged in', async () => {
+      await request(app)
+        .post('/todos')
+        .expect(401)
+    })
+    it('should respond 400 if data is invalid', async () => {
+      const cookie = `token=${token}`
+      const todo = { title: 1234 }
+
+      await request(app)
+        .post('/todos')
+        .set('Cookie', cookie)
+        .send(todo)
+        .expect(400)
+
+      const foundTodo = await Todo.findOne(todo)
+      expect(foundTodo).toBeFalsy()
+    })
+
+    it('should respond 302 create the todo and redirect to /todos', async () => {
+      const cookie = `token=${token}`
+      const todo = { title: 'hello' }
+
+      await request(app)
+        .post('/todos')
+        .set('Cookie', cookie)
+        .send(todo)
+        .expect(302)
+        .expect(res => {
+          expect(res.header.location).toEqual('/todos')
+        })
+      
+      const foundTodo = await Todo.findOne(todo)
+      expect(foundTodo).toBeTruthy()
+    })
   })
 
   describe('GET /todos/:id', () => {

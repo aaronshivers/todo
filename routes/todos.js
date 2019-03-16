@@ -5,6 +5,8 @@ const moment = require('moment')
 const Todo = require('../models/todos')
 const auth = require('../middleware/auth')
 const verifyCreator = require('../middleware/verify-creator')
+const validate = require('../middleware/validate')
+const validateTodo = require('../middleware/validateTodo')
 
 router.get('/todos', auth, async (req, res) => {
 
@@ -19,20 +21,11 @@ router.get('/todos', auth, async (req, res) => {
   }
 })
 
-// router.get('/todos', auth, (req, res) => {
-//   const { token } = req.cookies
-//   verifyCreator(token).then((creator) => {
-//     Todo.find({ creator }).then((todos) => {
-//       res.render('todos', { todos })
-//     })
-//   })
-// })
-
 router.get('/todos/new', auth, (req, res) => {
   res.render('new-todo')
 })
 
-router.post('/todos', auth, (req, res) => {
+router.post('/todos', [auth, validate(validateTodo)], (req, res) => {
   const { token } = req.cookies
 
   verifyCreator(token).then((creator) => {

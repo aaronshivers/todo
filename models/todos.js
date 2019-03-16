@@ -10,7 +10,7 @@ const todoSchema = new Schema({
     lowercase: true,
     trim: true,
     minlength: 1,
-    maxlength: 100
+    maxlength: 50
   },
   completed: {
     type: Boolean,
