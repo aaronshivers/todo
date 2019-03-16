@@ -53,8 +53,9 @@ router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
 })
 
 router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
+  
   try {
-    
+
     // get user info
     const { user } = req
 
@@ -76,20 +77,39 @@ router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
     res.render('error', { msg: error.message })
 
   }
+
 })
 
-router.patch('/todos/:id', auth, (req, res) => {
-  const { token } = req.cookies
-  const _id = req.params.id
-  const update = { title, completed } = req.body
+router.patch('/todos/:id', [auth, validateObjectId], async (req, res) => {
+  
+  try {
+    // get todo id
+    const _id = req.params.id
 
-  verifyCreator(token).then((creator) => {
-    const conditions = { _id, creator }
+    // get title and status
+    const update = { title, completed } = req.body
 
-    Todo.findOneAndUpdate(conditions, update).then(() => {
-      res.redirect('/todos')
-    })
-  })
+    // get user data
+    const { user } = req
+
+    // create update
+    const conditions = { _id, creator: user._id }
+
+    // update todo
+    const updatedTodo = await Todo.findOneAndUpdate(conditions, update)
+    
+    // reject if todo is not updated
+    if (!updatedTodo) return res.status(404).render('error', { msg: 'Todo Could Not Be Updated' })
+
+    // redirect after updating
+    res.redirect('/todos')
+
+  } catch (error) {
+
+    // send error message
+    res.render('error', { msg: error.message })
+
+  }
 })
 
 router.delete('/todos/:id', auth, (req, res) => {

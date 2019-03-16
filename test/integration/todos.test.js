@@ -134,7 +134,7 @@ describe('/todos', () => {
         .expect(400)
     })
 
-    it('should respond 404 if id is NOT in the DB, or user is NOT the creator', async () => {
+    it('should respond 404 if id is NOT in DB, or user is NOT creator', async () => {
       const cookie = `token=${ token }`
 
       await request(app)
@@ -154,10 +154,51 @@ describe('/todos', () => {
   })
 
   describe('PATCH /todos/:id', () => {
-    it('should respond 401 if user is NOT logged in', async () => {})
-    it('should respond 404 if id is in the DB', async () => {})
-    it('should respond 401 if user is NOT creator', async () => {})
-    it('should respond 302 update the todo and redirect to /todos', async () => {})
+    it('should respond 401 if user is NOT logged in', async () => {
+      const todo = { title: 1234, completed: true }
+
+      await request(app)
+        .patch(`/todos/${ todos[0]._id }`)
+        .send(todo)
+        .expect(401)
+    })
+
+    it('should respond 400 if id invalid', async () => {
+      const cookie = `token=${ token }`
+      const todo = { title: 1234, completed: true }
+
+      await request(app)
+        .patch(`/todos/1234`)
+        .set('Cookie', cookie)
+        .send(todo)
+        .expect(400)
+    })
+
+    it('should respond 404 if id is NOT in the DB, or user is NOT creator', async () => {
+      const cookie = `token=${ token }`
+      const todo = { title: 1234, completed: true }
+
+      await request(app)
+        .patch(`/todos/${ new ObjectId() }`)
+        .set('Cookie', cookie)
+        .send(todo)
+        .expect(404)
+    })
+
+    it('should respond 302 update the todo and redirect to /todos', async () => {
+      const cookie = `token=${ token }`
+      const todo = { title: 1234, completed: true }
+      const id = todos[0]._id
+
+      await request(app)
+        .patch(`/todos/${ id }`)
+        .set('Cookie', cookie)
+        .send(todo)
+        .expect(302)
+
+      const foundTodo = await Todo.findById(id)
+      expect(foundTodo).toBeTruthy()
+    })
   })
   
   describe('DELETE /todos/:id', () => {
