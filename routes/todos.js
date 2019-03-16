@@ -112,18 +112,34 @@ router.patch('/todos/:id', [auth, validateObjectId, validate(validateTodo)], asy
   }
 })
 
-router.delete('/todos/:id', auth, (req, res) => {
-  const { token } = req.cookies
-  const _id = req.params.id
-  
+router.delete('/todos/:id', [auth, validateObjectId], async (req, res) => {
 
-  verifyCreator(token).then((creator) => {
-    const conditions = { _id, creator }
+  try {
 
-    Todo.findOneAndDelete(conditions).then((todo) => {
-      res.redirect('/todos')
-    })
-  })
+    // get todo id
+    const _id = req.params.id
+
+    // get user info
+    const { user } = req
+        
+    // set conditions for deletion
+    const conditions = { _id, creator: user._id }
+
+    // delete todo
+    const todo = await Todo.findOneAndDelete(conditions)
+
+    // reject if todo not found or user is not creator
+    if (!todo) return res.status(404).render('error', { msg: 'Todo Could Not Be Deleted' })
+    
+    // redirect after deleting
+    res.redirect('/todos')
+
+  } catch (error) {
+
+    // send error message
+    res.render('error', { msg: error.message })
+
+  }
 })
 
 module.exports = router

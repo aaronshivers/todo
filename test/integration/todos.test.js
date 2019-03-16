@@ -226,9 +226,43 @@ describe('/todos', () => {
   })
   
   describe('DELETE /todos/:id', () => {
-    it('should respond 401 if user is NOT logged in', async () => {})
-    it('should respond 404 if id is in the DB', async () => {})
-    it('should respond 401 if user is NOT creator', async () => {})
+    it('should respond 401 if user is NOT logged in', async () => {
+      const id = todos[0]._id
+
+      await request(app)
+        .delete(`/todos/${ id }`)
+        .expect(401)
+
+      const foundTodo = await Todo.findById(id)
+      expect(foundTodo).toBeTruthy()
+    })
+
+    it('should respond 400 if id is invalid', async () => {
+      const cookie = `token=${ token }`
+      const id = todos[0]._id
+
+      await request(app)
+        .delete(`/todos/1234`)
+        .set('Cookie', cookie)
+        .expect(400)
+
+      const foundTodo = await Todo.findById(id)
+      expect(foundTodo).toBeTruthy()
+    })
+
+    it('should respond 404 if id is Not in the DB, or user is NOT creator', async () => {
+      const cookie = `token=${ token }`
+      const id = todos[0]._id
+
+      await request(app)
+        .delete(`/todos/${ new ObjectId() }`)
+        .set('Cookie', cookie)
+        .expect(404)
+
+      const foundTodo = await Todo.findById(id)
+      expect(foundTodo).toBeTruthy()
+    })
+    
     it('should respond 302 delete the todo and redirect to /todos', async () => {
       const cookie = `token=${ token }`
       const id = todos[0]._id
