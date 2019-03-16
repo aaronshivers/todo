@@ -26,6 +26,7 @@ beforeEach(async () => {
   todos = [{
     _id: new ObjectId(),
     title: 'todo0',
+    completed: false,
     creator: user._id
   }, {
     title: 'todo1',
@@ -155,17 +156,22 @@ describe('/todos', () => {
 
   describe('PATCH /todos/:id', () => {
     it('should respond 401 if user is NOT logged in', async () => {
-      const todo = { title: 1234, completed: true }
+      const todo = { title: 'todo3', completed: true }
 
       await request(app)
         .patch(`/todos/${ todos[0]._id }`)
         .send(todo)
         .expect(401)
+
+      const foundTodo = await Todo.findById(todos[0]._id)
+      expect(foundTodo).toBeTruthy()
+      expect(foundTodo.title).toBe(todos[0].title)
+      expect(foundTodo.completed).toBe(todos[0].completed)
     })
 
     it('should respond 400 if id invalid', async () => {
       const cookie = `token=${ token }`
-      const todo = { title: 1234, completed: true }
+      const todo = { title: 'todo3', completed: true }
 
       await request(app)
         .patch(`/todos/1234`)
@@ -176,7 +182,7 @@ describe('/todos', () => {
 
     it('should respond 404 if id is NOT in the DB, or user is NOT creator', async () => {
       const cookie = `token=${ token }`
-      const todo = { title: 1234, completed: true }
+      const todo = { title: 'todo3', completed: true }
 
       await request(app)
         .patch(`/todos/${ new ObjectId() }`)
@@ -185,9 +191,25 @@ describe('/todos', () => {
         .expect(404)
     })
 
+    it('should respond 400 if data is invalid', async () => {
+      const cookie = `token=${ token }`
+      const todo = { title: 1234, completed: 'true' }
+
+      await request(app)
+        .patch(`/todos/${ todos[0]._id }`)
+        .set('Cookie', cookie)
+        .send(todo)
+        .expect(400)
+
+      const foundTodo = await Todo.findById(todos[0]._id)
+      expect(foundTodo).toBeTruthy()
+      expect(foundTodo.title).toBe(todos[0].title)
+      expect(foundTodo.completed).toBe(todos[0].completed)
+    })
+
     it('should respond 302 update the todo and redirect to /todos', async () => {
       const cookie = `token=${ token }`
-      const todo = { title: 1234, completed: true }
+      const todo = { title: 'todo3', completed: true }
       const id = todos[0]._id
 
       await request(app)
@@ -198,6 +220,8 @@ describe('/todos', () => {
 
       const foundTodo = await Todo.findById(id)
       expect(foundTodo).toBeTruthy()
+      expect(foundTodo.title).toBe(todo.title)
+      expect(foundTodo.completed).toBe(todo.completed)
     })
   })
   
@@ -205,6 +229,17 @@ describe('/todos', () => {
     it('should respond 401 if user is NOT logged in', async () => {})
     it('should respond 404 if id is in the DB', async () => {})
     it('should respond 401 if user is NOT creator', async () => {})
-    it('should respond 302 delete the todo and redirect to /todos', async () => {})
+    it('should respond 302 delete the todo and redirect to /todos', async () => {
+      const cookie = `token=${ token }`
+      const id = todos[0]._id
+
+      await request(app)
+        .delete(`/todos/${ id }`)
+        .set('Cookie', cookie)
+        .expect(302)
+
+      const foundTodo = await Todo.findById(id)
+      expect(foundTodo).toBeFalsy()
+    })
   })
 })

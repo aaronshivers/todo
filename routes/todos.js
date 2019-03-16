@@ -80,7 +80,7 @@ router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
 
 })
 
-router.patch('/todos/:id', [auth, validateObjectId], async (req, res) => {
+router.patch('/todos/:id', [auth, validateObjectId, validate(validateTodo)], async (req, res) => {
   
   try {
     // get todo id
