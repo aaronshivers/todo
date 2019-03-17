@@ -67,7 +67,7 @@ router.get('/users', auth, async (req, res) => {
 })
 
 // GET /users/:id
-router.get('/users/:id/view', auth, async (req, res) => {
+router.get('/users/:id/view', [auth, validateObjectId], async (req, res) => {
   const { id } = req.params
 
   try {
