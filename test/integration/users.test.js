@@ -156,15 +156,13 @@ describe('/users', () => {
         expect(user).toBeFalsy()
     })
 
-    it('should return 404 if the specified user is not found', (done) => {
-      const { _id } = users[2]
+    it('should return 404 if the specified user is not found', async () => {
       const cookie = `token=${tokens[0]}`
 
       request(app)
-        .delete(`/users/${ _id }`)
+        .delete(`/users/${ new ObjectId() }`)
         .set('Cookie', cookie)
         .expect(404)
-        .end(done)
     })
   })
 

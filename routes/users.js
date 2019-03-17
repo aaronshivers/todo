@@ -84,15 +84,17 @@ router.get('/users/:id/view', auth, async (req, res) => {
 
 // DELETE /users/:id
 router.delete('/users/:id', auth, async (req, res) => {
-  const { id } = req.params
 
   try {
 
+    // get user info
+    const { user } = req
+
     // find and delete user
-    const user = await User.findByIdAndDelete(id)
-    
+    const deletedUser = await User.findByIdAndDelete(user._id)
+
     // reject if user was not found
-    if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
+    if (!deletedUser) return res.status(404).render('error', { msg: 'User Not Found' })
     
     // send cancellation email
     if (process.env.NODE_ENV === 'development') {
