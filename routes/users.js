@@ -156,10 +156,13 @@ router.get('/users/:id/edit', [auth, validateObjectId], async (req, res) => {
 // PATCH /users/:id
 router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => {
 
-  const { email, password } = req.body
-  const { id } = req.params
-  
   try {
+
+    // get email and password
+    const { email, password } = req.body
+
+    // get user id
+    const { id } = req.params
 
     // verify that user is either the account owner or an admin
     if (!req.user.isAdmin && req.user._id !== id) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
@@ -188,40 +191,45 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
     res.status(201).redirect(`/users/profile`)
 
   } catch (error) {
-    console.log(error)
-  }
+
+    // send error message
+    res.render('error', { msg: error.message })  }
 })
 
 // GET /users/profile
 router.get('/users/profile', auth, async (req, res) => {
+
   try {
-    const token = req.cookies.token
-    const secret = process.env.JWT_SECRET
-    const decoded = await jwt.verify(token, secret)
 
     // find user by id
-    const user = await User.findById(decoded._id)
+    const user = await User.findById(req.user._id)
 
     // reject if user is not found
     if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
 
     // send user data
     res.render('profile', { user })
+
   } catch (error) {
-    res.render('error', { msg: error.message })
-  }
+
+    // send error message
+    res.render('error', { msg: error.message })  }
 })
 
 // GET /login
 router.get('/login', (req, res) => {
+
+  // render login page
   res.render('login')
 })
 
 // POST /login
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body
 
   try {
+
+    // get email and password
+    const { email, password } = req.body
 
     // find user by email
     const user = await User.findOne({ email })
@@ -242,6 +250,8 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
       
   } catch (error) {
+
+    // send error message
     res.render('error', { msg: error.message })
   }
 })
@@ -258,11 +268,15 @@ router.get('/admin', auth, (req, res) => {
 
 // GET /signup
 router.get('/signup', (req, res) => {
+
+  // render signup page
   res.render('signup')
 })
 
 // GET /logout
 router.get('/logout', (req, res) => {
+
+  // delete cookie and redirect to /
   res.clearCookie('token').redirect(`/`)
 })
 
