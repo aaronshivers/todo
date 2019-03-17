@@ -26,10 +26,13 @@ router.get('/todos', auth, async (req, res) => {
 })
 
 router.get('/todos/new', auth, (req, res) => {
+
+  // render new todo page
   res.render('new-todo')
 })
 
 router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
+  
   try {
 
     // get title from the body
@@ -48,6 +51,8 @@ router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
     res.status(302).redirect('/todos')
 
   } catch (error) {
+
+    // send error message
     res.render('error', { msg: error.message })
   }
 })
@@ -83,6 +88,7 @@ router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
 router.patch('/todos/:id', [auth, validateObjectId, validate(validateTodo)], async (req, res) => {
   
   try {
+    
     // get todo id
     const _id = req.params.id
 
