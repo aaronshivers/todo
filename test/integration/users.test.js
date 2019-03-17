@@ -268,8 +268,46 @@ describe('/users', () => {
     })
 
 
-    it('should respond 302, save the updated user, and redirect to /users/profile', async () => {
+    it('should respond 302, save the updated user, and redirect to /users/profile if user is account owner', async () => {
       const { _id } = users[0]
+      const { email, password } = users[2]
+      const cookie = `token=${tokens[0]}`
+
+      await request(app)
+        .patch(`/users/${ _id }`)
+        .set('Cookie', cookie)
+        .send({ email, password })
+        .expect(302)
+        .expect(res => {
+          expect(res.header.location).toEqual('/users/profile')
+        })
+
+        const user = await User.findById(_id)
+        expect(user).toBeTruthy()
+        expect(user._id).toEqual(_id)
+        expect(user.email).toEqual(email)
+        expect(user.password).not.toEqual(password)
+    })
+
+    it('should respond 401, NOT update user if user is NOT account owner, or NOT Admin', async () => {
+      const { _id } = users[0]
+      const { email, password } = users[2]
+      const cookie = `token=${tokens[1]}`
+
+      await request(app)
+        .patch(`/users/${ _id }`)
+        .set('Cookie', cookie)
+        .send({ email, password })
+        .expect(401)
+
+        const user = await User.findById(_id)
+        expect(user).toBeTruthy()
+        expect(user._id).toEqual(_id)
+        expect(user.email).toEqual(users[0].email)
+    })
+
+    it('should respond 302, save the updated user, and redirect to /users/profile if user is Admin', async () => {
+      const { _id } = users[1]
       const { email, password } = users[2]
       const cookie = `token=${tokens[0]}`
 

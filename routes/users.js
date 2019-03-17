@@ -137,7 +137,10 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
   const { id } = req.params
   
   try {
-        
+
+    // verify that user is either the account owner or an admin
+    if (!req.user.isAdmin && req.user._id !== id) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+
     // hash password
     const saltRounds = 10
     const hash = await bcrypt.hash(password, saltRounds)
