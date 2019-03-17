@@ -5,9 +5,11 @@ const jwt = require('jsonwebtoken')
 const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
 
 const { User, userValidator } = require('../models/users')
+const Todo = require('../models/todos')
 const validatePassword = require('../middleware/validate-password')
 const auth = require('../middleware/auth')
 const validate = require('../middleware/validate')
+const validateObjectId = require('../middleware/validateObjectId')
 
 const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
 
@@ -83,7 +85,7 @@ router.get('/users/:id/view', auth, async (req, res) => {
 })
 
 // DELETE /users/:id
-router.delete('/users/:id', auth, async (req, res) => {
+router.delete('/users/:id', [auth, validateObjectId], async (req, res) => {
 
   try {
 
@@ -91,11 +93,12 @@ router.delete('/users/:id', auth, async (req, res) => {
     const { user } = req
 
     // find and delete user
-    const deletedUser = await user.remove()
+    const deletedUser = await req.user.remove()
+    // const deletedUser = await User.findByIdAndDelete(user._id)
 
     // reject if user was not found
     if (!deletedUser) return res.status(404).render('error', { msg: 'User Not Found' })
-    
+
     // send cancellation email
     if (process.env.NODE_ENV === 'development') {
       sendCancelationEmail(user.email)

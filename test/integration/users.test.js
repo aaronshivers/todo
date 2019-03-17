@@ -4,6 +4,7 @@ const { ObjectId } = require('mongodb')
 
 const app = require('../../app')
 const { User } = require('../../models/users')
+const Todo = require('../../models/todos')
 const { users, populateUsers, tokens } = require('./seed')
 
 // GET /
@@ -138,8 +139,50 @@ describe('/users', () => {
 
   // DELETE /users/:id
   describe('DELETE /users/:id', () => {
-    
-    it('should delete the specified user delete the cookie and redirect to /', async () => {
+
+    beforeEach(async() => {
+      await Todo.deleteMany({ creator: users[0]._id })
+      await new Todo({ title: 'todo', creator: users[0]._id }).save()
+    })
+
+    it('should respond 401 if user is NOT logged in', async () => {
+
+      await request(app)
+        .get('/users')
+        .expect(401)
+
+      const todos = await Todo.find({ creator: users[0]._id })
+      expect(todos.length).toBe(1)
+    })
+
+    it('should return 400 if Id is invalid', async () => {
+
+      const cookie = `token=${tokens[0]}`
+
+      request(app)
+        .delete(`/users/1234`)
+        .set('Cookie', cookie)
+        .expect(400)
+      
+      const todos = await Todo.find({ creator: users[0]._id })
+      expect(todos.length).toBe(1)
+    })
+
+    it('should return 404 if the specified user is not found', async () => {
+
+      const cookie = `token=${tokens[0]}`
+
+      request(app)
+        .delete(`/users/${ new ObjectId() }`)
+        .set('Cookie', cookie)
+        .expect(404)
+
+      const todos = await Todo.find({ creator: users[0]._id })
+      expect(todos.length).toBe(1)
+    })
+
+    it('should delete the user, cookie, and todos, then redirect to /', async () => {
+
       const { _id } = users[0]
       const cookie = `token=${tokens[0]}`
 
@@ -149,20 +192,15 @@ describe('/users', () => {
         .expect(302)
         .expect((res) => {
           expect(res.header.location).toEqual('/')
-          expect(res.header['set-cookie']).toEqual(["token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"])
+          expect(res.header['set-cookie'])
+            .toEqual(["token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"])
         })
 
-        const user = await User.findById(_id)
-        expect(user).toBeFalsy()
-    })
+      const user = await User.findById(_id)
+      expect(user).toBeFalsy()
 
-    it('should return 404 if the specified user is not found', async () => {
-      const cookie = `token=${tokens[0]}`
-
-      request(app)
-        .delete(`/users/${ new ObjectId() }`)
-        .set('Cookie', cookie)
-        .expect(404)
+      const todos = await Todo.find({ creator: users[0]._id })
+      expect(todos.length).toBe(0)
     })
   })
 
