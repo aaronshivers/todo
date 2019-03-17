@@ -73,7 +73,7 @@ router.get('/users/:id/view', [auth, validateObjectId], async (req, res) => {
   try {
 
     // verify that user is an admin
-    if (req.user.isAdmin !== true) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+    if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
 
     // find user by id
     const user = await User.findById(id)
@@ -119,6 +119,9 @@ router.delete('/users/:id', [auth, validateObjectId], async (req, res) => {
 // GET /users/:id/edit
 router.get('/users/:id/edit', auth, async (req, res) => {
   const { id } = req.params
+
+  // verify that user is admin
+  if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
 
   // find user by id
   const user = await User.findById(id)
@@ -219,6 +222,7 @@ router.post('/login', async (req, res) => {
 
 // GET /admin
 router.get('/admin', auth, (req, res) => {
+
   // verify isAdmin === true
   if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
 

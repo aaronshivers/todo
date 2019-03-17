@@ -158,6 +158,25 @@ describe('/users', () => {
     })
   })
 
+  // GET /users/:id/edit
+  describe('GET /users/:id/edit', () => {
+    
+    it('should respond 401, if user is NOT logged in', async () => {
+      await request(app)
+        .get(`/users/${ users[0]._id }/edit`)
+        .expect(401)
+    })
+
+    it('should respond 401, if user is NOT an admin', async () => {
+      const cookie = `token=${tokens[1]}`
+
+      await request(app)
+        .get(`/users/${ users[3]._id }/edit`)
+        .set('Cookie', cookie)
+        .expect(401)
+    })
+  })
+
   // DELETE /users/:id
   describe('DELETE /users/:id', () => {
 
