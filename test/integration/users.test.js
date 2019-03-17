@@ -115,6 +115,15 @@ describe('/users', () => {
         .expect(401)
     })
 
+    it('should respond 401, if user is NOT an admin', async () => {
+      const cookie = `token=${tokens[1]}`
+
+      await request(app)
+        .get(`/users/${ users[3]._id }/view`)
+        .set('Cookie', cookie)
+        .expect(401)
+    })
+
     it('should respond 400, if Id is invalid', async () => {
       const cookie = `token=${tokens[0]}`
 

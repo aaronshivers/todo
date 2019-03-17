@@ -71,6 +71,10 @@ router.get('/users/:id/view', [auth, validateObjectId], async (req, res) => {
   const { id } = req.params
 
   try {
+
+    // verify that user is an admin
+    if (req.user.isAdmin !== true) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+
     // find user by id
     const user = await User.findById(id)
 
