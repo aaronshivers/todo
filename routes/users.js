@@ -15,9 +15,11 @@ const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
 
 // POST /users
 router.post('/users', validate(userValidator), async (req, res) => {
-  const { email, password } = req.body
 
   try {
+    // get email and password from the body
+    const { email, password } = req.body
+
     // check db for existing user
     const existingUser = await User.findOne({ email })
     if (existingUser) return res.status(400).render('error', { msg: 'User already registered.' })
@@ -40,6 +42,8 @@ router.post('/users', validate(userValidator), async (req, res) => {
     res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
 
   } catch (error) {
+
+    // send error message
     res.status(400).render('error', { msg: error.message })
   }
 })
@@ -62,15 +66,19 @@ router.get('/users', auth, async (req, res) => {
     res.render('users', { users })
 
   } catch (error) {
+
+    // send error message
     res.render('error', { msg: error.message })
   }
 })
 
-// GET /users/:id
+// GET /users/:id/view
 router.get('/users/:id/view', [auth, validateObjectId], async (req, res) => {
-  const { id } = req.params
 
   try {
+
+    // get user id
+    const { id } = req.params
 
     // verify that user is an admin
     if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
@@ -83,7 +91,10 @@ router.get('/users/:id/view', [auth, validateObjectId], async (req, res) => {
     
     // return found user
     res.status(200).render('view', { user })
+
   } catch (error) {
+
+    // send error message
     res.render('error', { msg: error.message })
   }
 })
@@ -112,22 +123,34 @@ router.delete('/users/:id', [auth, validateObjectId], async (req, res) => {
     res.status(302).clearCookie('token').redirect('/')
 
   } catch (error) {
+
+    // send error message
     res.render('error', { msg: error.message })
   }
 })
 
 // GET /users/:id/edit
-router.get('/users/:id/edit', auth, async (req, res) => {
-  const { id } = req.params
+router.get('/users/:id/edit', [auth, validateObjectId], async (req, res) => {
 
-  // verify that user is admin
-  if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+  try {
 
-  // find user by id
-  const user = await User.findById(id)
+    // get user id
+    const { id } = req.params
 
-  // render edit page with user
-  res.render('edit', { user })
+    // verify that user is admin
+    if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+
+    // find user by id
+    const user = await User.findById(id)
+
+    // render edit page with user
+    res.render('edit', { user })
+
+  } catch (error) {
+
+    // send error message
+    res.render('error', { msg: error.message })
+  }
 })
 
 // PATCH /users/:id

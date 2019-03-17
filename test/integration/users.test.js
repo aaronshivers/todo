@@ -175,6 +175,15 @@ describe('/users', () => {
         .set('Cookie', cookie)
         .expect(401)
     })
+
+    it('should respond 400, if Id is invalid', async () => {
+      const cookie = `token=${tokens[1]}`
+
+      await request(app)
+        .get(`/users/1234/edit`)
+        .set('Cookie', cookie)
+        .expect(400)
+    })
   })
 
   // DELETE /users/:id
