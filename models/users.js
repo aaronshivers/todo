@@ -3,6 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const Joi = require('joi')
+const Todo = require('./todos')
 
 const Schema = mongoose.Schema
 
@@ -41,16 +42,24 @@ const userSchema = new Schema({
 
 // hash plain text passwords
 userSchema.pre('save', async function(next) {
+  const user = this
   const saltingRounds = 10
 
-  if (this.isModified || this.isNew) {
+  if (user.isModified || user.isNew) {
     try {
-      const hash = await bcrypt.hash(this.password, saltingRounds)
-      this.password = hash
+      const hash = await bcrypt.hash(user.password, saltingRounds)
+      user.password = hash
     } catch (error) {
       next(error)
     }
   }
+  next()
+})
+
+// remove user todos when user is removed
+userSchema.pre('remove', async function(next) {
+  const user = this
+  await Todo.deleteMany({ creator: user._id })
   next()
 })
 

@@ -91,7 +91,7 @@ router.delete('/users/:id', auth, async (req, res) => {
     const { user } = req
 
     // find and delete user
-    const deletedUser = await User.findByIdAndDelete(user._id)
+    const deletedUser = await user.remove()
 
     // reject if user was not found
     if (!deletedUser) return res.status(404).render('error', { msg: 'User Not Found' })
