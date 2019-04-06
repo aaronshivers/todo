@@ -21,7 +21,6 @@ self.addEventListener('install', event => {
       `https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js`,
       `https://fonts.googleapis.com/css?family=Lato:400,700,400italic`
     ])
-    cache.add(`/js/script.js`)
   }))
 })
 
