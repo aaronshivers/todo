@@ -35,7 +35,7 @@ self.addEventListener('fetch', event => {
     if (response) {
       return response
     } else {
-      fetch(event.request)
+      return fetch(event.request)
     }
   }))
 })
