@@ -193,7 +193,8 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
   } catch (error) {
 
     // send error message
-    res.render('error', { msg: error.message })  }
+    res.render('error', { msg: error.message })
+  }
 })
 
 // GET /users/profile
