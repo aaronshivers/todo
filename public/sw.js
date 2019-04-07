@@ -6,11 +6,11 @@ self.addEventListener('install', event => {
       `/`,
       `/login`,
       `/signup`,
-      // `/todos`,
-      // `/todos/new`,
-      // `/users`,
-      // `/users/profile`,
-      // `/admin`,
+      `/todos`,
+      `/todos/new`,
+      `/users`,
+      `/users/profile`,
+      `/admin`,
       `/js/script.js`,
       `/js/home-script.js`,
       `/js/promise.js`,
@@ -35,7 +35,13 @@ self.addEventListener('fetch', event => {
     if (response) {
       return response
     } else {
-      return fetch(event.request)
+      return fetch(event.request).then(res => {
+        return caches.open('dynamic').then(cache => {
+          cache.put(event.request.url, res.clone())
+          return res
+        })
+      })
     }
   }))
 })
+
