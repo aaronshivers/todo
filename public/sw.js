@@ -1,17 +1,17 @@
-const CACHE_STATIC_NAME = `static-v1`
+const CACHE_STATIC_NAME = `static-v4`
 const CACHE_DYNAMIC_NAME = `dynamic-v1`
 
 self.addEventListener('install', async event => {
   try {
     console.log(`[Service Worker] Installing Service Worker...`, event)
-        const cache = await caches.open(CACHE_STATIC_NAME)
-        if (cache) {
+    const cache = await caches.open(CACHE_STATIC_NAME)
+    if (cache) {
       console.log(`[Service Worker] Pre-Caching App Shell`)
-            cache.addAll([
+      cache.addAll([
         `/`,
         `/offline`,
         `/login`,
-        `/signup`,
+        // `/signup`,
         `/js/script.js`,
         `/js/home-script.js`,
         `/js/promise.js`,
@@ -46,19 +46,19 @@ self.addEventListener('activate', async event => {
   }
 })
 
-self.addEventListener('fetch', async event => {
-  try {
-    const response = await event.respondWith(caches.match(event.request))
-    if (response) {
-      return response
-    } else {
-      const res = await fetch(event.request)
-      const cache = await caches.open(CACHE_DYNAMIC_NAME)
-      cache.put(event.request.url, res.clone())
-      return res
-    }
-  } catch (error) {
-    const cache = await caches.open(CACHE_STATIC_NAME)
-    return cache.match(`/offline.html`)
-  }
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(resp => {
+      return resp || fetch(event.request).then(response => {
+        return caches.open(CACHE_DYNAMIC_NAME).then(cache => {
+          cache.put(event.request.url, response.clone())
+          return response
+        })
+      })
+    }).catch(() => {
+      return caches.open(CACHE_STATIC_NAME).then(cache => {
+        return caches.match(`/offline.html`)
+      })
+    })
+  )
 })
