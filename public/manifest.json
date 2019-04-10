@@ -12,6 +12,7 @@
     }
   ],
   "scope": ".",
+  "start_url": "http://todo.aaronshivers.com/",
   "background_color": "#2C3E50",
   "display": "standalone",
   "theme_color": "#2C3E50"
