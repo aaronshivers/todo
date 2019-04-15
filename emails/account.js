@@ -9,8 +9,8 @@ const sendWelcomeEmail = email => {
   client.sendEmail({
     "To": email,
     "From": 'aaron@aaronshivers.com',
-    "Subject": 'Welcome to the Blog',
-    "TextBody": `Welcome to the Blog, ${ email }. I hope that you enjoy it.`
+    "Subject": 'Welcome to my Todo Application',
+    "TextBody": `Welcome to my Todo Application, ${ email }. I hope that you enjoy it.`
   })
 }
 
