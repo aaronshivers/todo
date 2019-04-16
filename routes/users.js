@@ -137,8 +137,8 @@ router.get('/users/:id/edit', [auth, validateObjectId], async (req, res) => {
     // get user id
     const { id } = req.params
 
-    // verify that user is admin
-    if (!req.user.isAdmin) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+    // verify that user is admin or account owner
+    if (!req.user.isAdmin && id !== req.user._id.toString()) return res.status(401).render('error', { msg: 'Access Denied!' })
 
     // find user by id
     const user = await User.findById(id)
@@ -165,7 +165,7 @@ router.patch('/users/:id', [auth, validate(userValidator)], async (req, res) => 
     const { id } = req.params
 
     // verify that user is either the account owner or an admin
-    if (!req.user.isAdmin && req.user._id !== id) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
+    if (!req.user.isAdmin && id !== req.user._id.toString()) return res.status(401).render('error', { msg: 'Access Denied! Admin Only!' })
 
     // hash password
     const saltRounds = 10

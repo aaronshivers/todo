@@ -184,6 +184,24 @@ describe('/users', () => {
         .set('Cookie', cookie)
         .expect(400)
     })
+
+    it('should respond 200, if user is account owner', async () => {
+      const cookie = `token=${tokens[1]}`
+
+      await request(app)
+        .get(`/users/${ users[1]._id }/edit`)
+        .set('Cookie', cookie)
+        .expect(200)
+    })
+
+    it('should respond 200, if user is admin', async () => {
+      const cookie = `token=${tokens[0]}`
+
+      await request(app)
+        .get(`/users/${ users[1]._id }/edit`)
+        .set('Cookie', cookie)
+        .expect(200)
+    })
   })
 
   // DELETE /users/:id
@@ -276,11 +294,10 @@ describe('/users', () => {
         .expect(404)
     })
 
-
     it('should respond 302, save the updated user, and redirect to /users/profile if user is account owner', async () => {
-      const { _id } = users[0]
+      const { _id } = users[1]
       const { email, password } = users[2]
-      const cookie = `token=${tokens[0]}`
+      const cookie = `token=${tokens[1]}`
 
       await request(app)
         .patch(`/users/${ _id }`)
