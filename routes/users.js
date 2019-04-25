@@ -246,7 +246,7 @@ router.post('/login', async (req, res) => {
     
     // create token
     const token = await user.createAuthToken()
-
+console.log(token)
     // set cookie and redirect to /users/profile
     res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
       
