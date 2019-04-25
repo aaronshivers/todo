@@ -13,7 +13,7 @@ const app = express()
 const port = process.env.PORT
 
 // Handle uncaught exceptions
-winston.exceptions.handle(new winston.transports.File({ filename: 'uncaughtExceptions.log', level: 'error'}))
+winston.exceptions.handle(new winston.transports.File({ filename: 'uncaughtExceptions.log', level: 'info'}))
 winston.exceptions.handle(new winston.transports.Console({ colorize: true, prettyPrint: true }))
 
 //Handle unhandled rejections
@@ -24,7 +24,7 @@ process.on('unhandledRejection', exception => {
 // Error Logging
 winston.add(new winston.transports.Console({ colorize: true, prettyPrint: true }))
 winston.add(new winston.transports.File({ filename: 'logfile.log', level: 'info' }))
-winston.add(new winston.transports.MongoDB ({ db: url, level: 'info' }))
+winston.add(new winston.transports.MongoDB ({ db: url, level: 'debug' }))
 
 
 const indexRoutes = require('./routes/index')
