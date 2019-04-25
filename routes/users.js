@@ -33,6 +33,9 @@ router.post('/users', validate(userValidator), async (req, res) => {
     // get auth token
     const token = await user.createAuthToken()
 
+    // reject if token wasn't created
+    if (!token) return res.status(500).render('error', { msg: 'Server Error: Token Not Created' })
+
     // send welcome email
     if (process.env.NODE_ENV === 'development') {
       sendWelcomeEmail(email)
@@ -247,6 +250,10 @@ router.post('/login', async (req, res) => {
     // create token
     const token = await user.createAuthToken()
 console.log(token)
+
+    // reject if token wasn't created
+    if (!token) return res.status(500).render('error', { msg: 'Server Error: Token Not Created' })
+
     // set cookie and redirect to /users/profile
     res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
       
