@@ -14,9 +14,12 @@ module.exports = async (req, res, next) => {
 
     // get secret from env
     const secret = process.env.JWT_SECRET
+
+    // jwt options
+    const options = { maxAge: '1d' }
     
     // verify token against the secret
-    const decoded = await jwt.verify(token, secret)
+    const decoded = await jwt.verify(token, secret, options)
 
     // find user by id
     const user = await User.findById(decoded._id)
