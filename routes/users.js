@@ -11,7 +11,7 @@ const auth = require('../middleware/auth')
 const validate = require('../middleware/validate')
 const validateObjectId = require('../middleware/validateObjectId')
 
-const cookieExpiration = { expires: new Date(Date.now() + 86400000) }
+const cookieOptions = { expires: new Date(Date.now() + 86400000), httpOnly: true }
 
 // POST /users
 router.post('/users', validate(userValidator), async (req, res) => {
@@ -42,7 +42,7 @@ router.post('/users', validate(userValidator), async (req, res) => {
     }
 
     // set header and return user info
-    res.cookie('token', token, cookieExpiration).status(201).render(`profile`, { user })
+    res.cookie('token', token, cookieOptions).status(201).render(`profile`, { user })
 
   } catch (error) {
 
@@ -255,7 +255,7 @@ console.log(token)
     if (!token) return res.status(500).render('error', { msg: 'Server Error: Token Not Created' })
 
     // set cookie and redirect to /users/profile
-    res.cookie('token', token, cookieExpiration).status(200).redirect(`/users/profile`)
+    res.cookie('token', token, cookieOptions).status(200).redirect(`/users/profile`)
       
   } catch (error) {
 
