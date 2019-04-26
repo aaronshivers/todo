@@ -249,7 +249,6 @@ router.post('/login', async (req, res) => {
     
     // create token
     const token = await user.createAuthToken()
-console.log(token)
 
     // reject if token wasn't created
     if (!token) return res.status(500).render('error', { msg: 'Server Error: Token Not Created' })
