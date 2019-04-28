@@ -40,7 +40,7 @@ router.post('/users', validate(userValidator), async (req, res) => {
     }
 
     // set cookie options
-    const cookieOptions = { expires: new Date(Date.now() + 86400000), httpOnly: true }
+    const cookieOptions = { expires: new Date(Date.now() + 86400000), httpOnly: true  }
 
     // set header and return user info
     res.cookie('token', token, cookieOptions).status(201).render(`profile`, { user })
@@ -255,8 +255,8 @@ router.post('/login', async (req, res) => {
     if (!token) return res.status(500).render('error', { msg: 'Server Error: Token Not Created' })
 
     // set cookie options
-    const cookieOptions = { expires: new Date(Date.now() + 86400000), httpOnly: true }
-    
+    const cookieOptions = { expires: new Date(Date.now() + 86400000) }
+
     // set cookie and redirect to /users/profile
     res.cookie('token', token, cookieOptions).status(200).redirect(`/users/profile`)
       
