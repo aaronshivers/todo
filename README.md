@@ -22,6 +22,14 @@ Create a file called .env in the root directory
 ```
 touch .env
 ```
+add the following variables
+* PORT
+* JWT_SECRET
+* MONGO_COLLECTION
+* MONGO_PASS
+* MONGO_SERVER
+* MONGO_USER
+* POSTMARK_TOKEN
 
 ### Start Application
 ```
