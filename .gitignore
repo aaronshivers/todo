@@ -2,4 +2,4 @@ node_modules/
 .env
 todo.txt
 logfile.log
-uncaughtExceptions.log
+error.log

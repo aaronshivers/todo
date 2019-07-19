@@ -6,26 +6,10 @@ const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const methodOverride = require('method-override')
 const compression = require('compression')
-const winston = require('winston')
-require('winston-mongodb')
+const { logger } = require('./logger')
 
 const app = express()
 const port = process.env.PORT
-
-// Handle uncaught exceptions
-winston.exceptions.handle(new winston.transports.File({ filename: 'uncaughtExceptions.log', level: 'info'}))
-winston.exceptions.handle(new winston.transports.Console({ colorize: true, prettyPrint: true }))
-
-//Handle unhandled rejections
-process.on('unhandledRejection', exception => {
-  throw exception.message
-})
-
-// Error Logging
-winston.add(new winston.transports.Console({ colorize: true, prettyPrint: true }))
-winston.add(new winston.transports.File({ filename: 'logfile.log', level: 'info' }))
-winston.add(new winston.transports.MongoDB ({ db: url, level: 'debug' }))
-
 
 const indexRoutes = require('./routes/index')
 const userRoutes = require('./routes/users')
@@ -53,6 +37,6 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.message)
 })
 
-app.listen(port, () => winston.info(`Server listening on port ${ port }.`))
+app.listen(port, () => logger.info(`Server listening on port ${ port }.`))
 
 module.exports = app

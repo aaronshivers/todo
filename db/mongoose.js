@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const winston = require('winston')
+const { logger, winston } = require('../logger.js')
 
 const {
   MONGO_USER,
@@ -18,7 +18,16 @@ options = {
   useFindAndModify: false
 }
 
+logger
+  .add(
+    new winston
+      .transports
+      .MongoDB({
+        db: url
+      })
+  )
+
 mongoose.connect(url, options)
-  .then(() => winston.info(`Connected to ${ process.env.NODE_ENV } Database`))
+  .then(() => logger.info(`Connected to ${ process.env.NODE_ENV } Database`))
 
 module.exports = { mongoose, url }
