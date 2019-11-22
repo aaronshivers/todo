@@ -47,8 +47,7 @@ userSchema.pre('save', async function(next) {
 
   if (user.isModified || user.isNew) {
     try {
-      const hash = await bcrypt.hash(user.password, saltingRounds)
-      user.password = hash
+      user.password = await bcrypt.hash(user.password, saltingRounds)
     } catch (error) {
       next(error)
     }

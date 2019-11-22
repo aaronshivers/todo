@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const express = require('express')
-const { mongoose, url } = require('./db/mongoose')
+require('./db/mongoose')
 const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const methodOverride = require('method-override')
@@ -29,11 +29,11 @@ app.use(indexRoutes)
 app.use(userRoutes)
 app.use(todoRoutes)
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).send('Sorry, we cannot find that!')
 })
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   res.status(500).send(err.message)
 })
 

@@ -1,12 +1,9 @@
 const express =  require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
+const { sendWelcomeEmail, sendCancellationEmail } = require('../emails/account')
 
 const { User, userValidator } = require('../models/users')
-const Todo = require('../models/todos')
-const validatePassword = require('../middleware/validate-password')
 const auth = require('../middleware/auth')
 const validate = require('../middleware/validate')
 const validateObjectId = require('../middleware/validateObjectId')
@@ -62,10 +59,10 @@ router.get('/users', auth, async (req, res) => {
 
     // find users
     const users = await User.find()
-      
+
     // reject if no users found
     if (users.length === 0) return res.status(404).render('error', { msg: 'No Users Found' })
-        
+
     // return users
     res.render('users', { users })
 
@@ -92,7 +89,7 @@ router.get('/users/:id/view', [auth, validateObjectId], async (req, res) => {
 
     // reject if user not found
     if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
-    
+
     // return found user
     res.status(200).render('view', { user })
 
@@ -120,9 +117,9 @@ router.delete('/users/:id', [auth, validateObjectId], async (req, res) => {
 
     // send cancellation email
     if (process.env.NODE_ENV === 'development') {
-      sendCancelationEmail(user.email)
+      sendCancellationEmail(user.email)
     }
-    
+
     // delete cookie and redirect to /
     res.status(302).clearCookie('token').redirect('/')
 
@@ -241,13 +238,13 @@ router.post('/login', async (req, res) => {
 
     // reject if user is not found
     if (!user) return res.status(404).render('error', { msg: 'User Not Found' })
-    
+
     // verify user password
     const hash = await bcrypt.compare(password, user.password)
-    
+
     // reject if password is incorrect
     if (!hash) return res.status(401).render('error', { msg: 'Please check your login credentials, and try again.' })
-    
+
     // create token
     const token = await user.createAuthToken()
 
@@ -259,7 +256,7 @@ router.post('/login', async (req, res) => {
 
     // set cookie and redirect to /users/profile
     res.cookie('token', token, cookieOptions).status(200).redirect(`/users/profile`)
-      
+
   } catch (error) {
 
     // send error message

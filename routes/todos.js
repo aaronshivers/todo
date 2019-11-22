@@ -4,7 +4,6 @@ const moment = require('moment')
 
 const Todo = require('../models/todos')
 const auth = require('../middleware/auth')
-const verifyCreator = require('../middleware/verify-creator')
 const validate = require('../middleware/validate')
 const validateTodo = require('../middleware/validateTodo')
 const validateObjectId = require('../middleware/validateObjectId')
@@ -31,8 +30,8 @@ router.get('/todos/new', auth, (req, res) => {
   res.render('new-todo')
 })
 
-router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
-  
+router.post('/todos', [ auth, validate(validateTodo) ], async (req, res) => {
+
   try {
 
     // get title from the body
@@ -46,8 +45,8 @@ router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
 
     // save todo
     await todo.save()
-    
-    // redirect to /todos  
+
+    // redirect to /todos
     res.status(302).redirect('/todos')
 
   } catch (error) {
@@ -57,8 +56,8 @@ router.post('/todos', [auth, validate(validateTodo)], async (req, res) => {
   }
 })
 
-router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
-  
+router.get('/todos/:id/edit', [ auth, validateObjectId ], async (req, res) => {
+
   try {
 
     // get user info
@@ -69,7 +68,7 @@ router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
 
     // find todo by todo id and user id
     const todo = await Todo.findOne({ _id: id, creator: user._id })
-    
+
     // reject if todo is not found in the DB
     if (!todo) return res.status(404).render('error', { msg: 'Todo Not Found' })
 
@@ -85,15 +84,15 @@ router.get('/todos/:id/edit', [auth, validateObjectId], async (req, res) => {
 
 })
 
-router.patch('/todos/:id', [auth, validateObjectId, validate(validateTodo)], async (req, res) => {
-  
+router.patch('/todos/:id', [ auth, validateObjectId, validate(validateTodo) ], async (req, res) => {
+
   try {
-    
+
     // get todo id
     const _id = req.params.id
 
     // get title and status
-    const update = { title, completed } = req.body
+    const update = { completed } = req.body
 
     // get user data
     const { user } = req
@@ -103,7 +102,7 @@ router.patch('/todos/:id', [auth, validateObjectId, validate(validateTodo)], asy
 
     // update todo
     const updatedTodo = await Todo.findOneAndUpdate(conditions, update)
-    
+
     // reject if todo is not updated
     if (!updatedTodo) return res.status(404).render('error', { msg: 'Todo Could Not Be Updated' })
 
@@ -118,7 +117,7 @@ router.patch('/todos/:id', [auth, validateObjectId, validate(validateTodo)], asy
   }
 })
 
-router.delete('/todos/:id', [auth, validateObjectId], async (req, res) => {
+router.delete('/todos/:id', [ auth, validateObjectId ], async (req, res) => {
 
   try {
 
@@ -127,7 +126,7 @@ router.delete('/todos/:id', [auth, validateObjectId], async (req, res) => {
 
     // get user info
     const { user } = req
-        
+
     // set conditions for deletion
     const conditions = { _id, creator: user._id }
 
@@ -136,7 +135,7 @@ router.delete('/todos/:id', [auth, validateObjectId], async (req, res) => {
 
     // reject if todo not found or user is not creator
     if (!todo) return res.status(404).render('error', { msg: 'Todo Could Not Be Deleted' })
-    
+
     // redirect after deleting
     res.redirect('/todos')
 

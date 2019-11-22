@@ -1,9 +1,9 @@
-var postmark = require("postmark")
+const postmark = require('postmark')
 
 const serverToken = process.env.POSTMARK_TOKEN
 
 // Send an email:
-var client = new postmark.ServerClient(serverToken)
+const client = new postmark.ServerClient(serverToken)
 
 const sendWelcomeEmail = email => {
   client.sendEmail({
@@ -25,5 +25,5 @@ const sendCancelationEmail = email => {
 
 module.exports = {
   sendWelcomeEmail,
-  sendCancelationEmail
+  sendCancellationEmail: sendCancelationEmail
 }

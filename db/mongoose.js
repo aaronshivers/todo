@@ -5,12 +5,11 @@ const {
   MONGO_USER,
   MONGO_PASS,
   MONGO_SERVER,
-  MONGO_COLLECTION,
-  NODE_ENV
+  MONGO_COLLECTION
 } = process.env
 
-const encodedpass = encodeURIComponent(MONGO_PASS)
-const url = `mongodb://${ MONGO_USER }:${ encodedpass }@${ MONGO_SERVER }/${ MONGO_COLLECTION }`
+const encodedPass = encodeURIComponent(MONGO_PASS)
+const url = `mongodb://${ MONGO_USER }:${ encodedPass }@${ MONGO_SERVER }/${ MONGO_COLLECTION }`
 
 options = {
   useNewUrlParser: true,
